@@ -16,17 +16,20 @@ import static java.util.UUID.randomUUID;
 @Entity
 @NoArgsConstructor
 public class Account {
-    public Account(AccountType accountType) {
+
+    public Account(AccountType accountType, Iban iban) {
+        this.id = randomUUID();
         this.accountType = accountType;
-        id = randomUUID();
+        this.iban = iban;
     }
 
     @Id
     private UUID id;
     private AccountType accountType;
     private BigDecimal balance = ZERO;
+    private Iban iban;
 
-    void  deposit(Money money){
+    void deposit(Money money) {
         balance = balance.add(money.getAmount());
     }
 

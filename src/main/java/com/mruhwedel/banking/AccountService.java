@@ -30,6 +30,7 @@ public class AccountService {
 
     void transfer(Iban from, Iban to, Money amount) {
         log.info("{}->{} {} ", from, to, amount);
+
     }
 
     Optional<Money> getBalance(Iban account) {
