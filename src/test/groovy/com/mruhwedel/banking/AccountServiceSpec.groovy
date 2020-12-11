@@ -11,9 +11,9 @@ class AccountServiceSpec extends Specification {
             Mock(AccountRepository)
     )
 
-    def 'deposit will load an account, add the amount and persist it'() {
+    def 'deposit() should load an account, add the amount and persist it'() {
         given:
-        def account = new Account(null, ACCOUNT_TYPE, 0.0)
+        def account = new Account( ACCOUNT_TYPE) // account starts with 0.0 balance
 
         when:
         service.deposit(IBAN, MONEY)
@@ -32,10 +32,20 @@ class AccountServiceSpec extends Specification {
 //        then:
     }
 
-    def "test getBalance"() {
-//        given:
-//        when:
-//        then:
+    def "getBalance(): Should return the balance"() {
+        given:
+        def account = new Account(ACCOUNT_TYPE)
+        account.deposit(new Money(123.0))
+
+        when:
+        def result = service.getBalance(IBAN)
+
+        then:
+        service.accountRepository.findByIban(IBAN) >> Optional.of(account)
+
+        result
+                .map {it.amount == account.balance}
+                .orElse(false)
     }
 
     def "test getAll"() {

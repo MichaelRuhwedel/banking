@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 import static lombok.AccessLevel.PACKAGE;
 
 @Slf4j
@@ -30,8 +32,13 @@ public class AccountService {
         log.info("{}->{} {} ", from, to, amount);
     }
 
-    void getBalance(Iban account) {
+    Optional<Money> getBalance(Iban account) {
         log.info("{}[{}]", account);
+        return accountRepository
+                .findByIban(account)
+                .map(Account::getBalance)
+                .map(Money::new);
+
     }
 
     void getAll(AccountType accountType) {

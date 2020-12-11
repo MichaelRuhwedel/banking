@@ -10,12 +10,17 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 import static java.math.BigDecimal.ZERO;
+import static java.util.UUID.randomUUID;
 
 @Data
 @Entity
-@AllArgsConstructor
 @NoArgsConstructor
 public class Account {
+    public Account(AccountType accountType) {
+        this.accountType = accountType;
+        id = randomUUID();
+    }
+
     @Id
     private UUID id;
     private AccountType accountType;
