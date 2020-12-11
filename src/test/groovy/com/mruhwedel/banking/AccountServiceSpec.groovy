@@ -13,7 +13,7 @@ class AccountServiceSpec extends Specification {
 
     def 'deposit() should load an account, add the amount and persist it'() {
         given:
-        def account = new Account( ACCOUNT_TYPE) // account starts with 0.0 balance
+        def account = new Account(ACCOUNT_TYPE) // account starts with 0.0 balance
 
         when:
         service.deposit(IBAN, MONEY)
@@ -44,13 +44,21 @@ class AccountServiceSpec extends Specification {
         service.accountRepository.findByIban(IBAN) >> Optional.of(account)
 
         result
-                .map {it.amount == account.balance}
+                .map { it.amount == account.balance }
                 .orElse(false)
     }
 
-    def "test getAll"() {
-//        given:
-//        when:
-//        then:
+    def 'getAll() will filter by account type'() {
+        given:
+        def filter = ACCOUNT_TYPE
+        def accounts = [new Account()]
+
+        when:
+        def result = service.getAllFiltered(filter)
+
+        then:
+        1 * service.accountRepository.findByAccountType(filter) >> accounts
+        result == accounts
+
     }
 }

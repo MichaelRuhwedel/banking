@@ -1,11 +1,11 @@
 package com.mruhwedel.banking;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 import static lombok.AccessLevel.PACKAGE;
@@ -33,7 +33,7 @@ public class AccountService {
     }
 
     Optional<Money> getBalance(Iban account) {
-        log.info("{}[{}]", account);
+        log.info("{}", account);
         return accountRepository
                 .findByIban(account)
                 .map(Account::getBalance)
@@ -41,7 +41,8 @@ public class AccountService {
 
     }
 
-    void getAll(AccountType accountType) {
-        log.info("{}*", accountType);
+    List<Account> getAllFiltered(AccountType filter) {
+        log.info("{}*", filter);
+        return accountRepository.findByAccountType(filter);
     }
 }

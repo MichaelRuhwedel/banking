@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Slf4j
 @Validated
 @RequiredArgsConstructor
@@ -36,7 +38,6 @@ public class BankingAPIController {
     }
 
     @GetMapping
-    void getAll(@RequestParam AccountType accountType) {
-        accountService.getAll(accountType);
+    List<Account> getAllFiltered(@RequestParam AccountType filter) { return accountService.getAllFiltered(filter);
     }
 }
