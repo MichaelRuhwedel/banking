@@ -1,31 +1,44 @@
 package com.mruhwedel.banking;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
+@Validated
+@RequiredArgsConstructor
 @RestController("/api/account")
 public class BankingAPIController {
 
+    private final AccountService accountService;
+
     @PostMapping("{selected}/deposit")
-    void deposit(IBAN selected, Amount amount) {
-        log.info("{}+= {}", selected, amount);
+    void deposit(@RequestParam
+                         IBAN selected,
+                 @RequestBody Amount amount) {
+        accountService.deposit(selected, amount);
     }
 
-    @PostMapping("{from}/transfer/${to}")
-    void transfer(IBAN from, IBAN to, Amount amount) {
-        log.info("{}->{} {} ", from, to, amount);
+    @PostMapping("{from}/transfer-to/${to}")
+    void transfer(
+            @RequestParam IBAN from,
+            @RequestParam IBAN to,
+            @RequestBody Amount amount
+    ) {
+        accountService.transfer(from, to, amount);
     }
 
     @GetMapping("{selected}")
-    void balance(IBAN account, AccountType accountType) {
-        log.info("{}[{}]", account, accountType);
+    void balance(
+            @RequestParam IBAN account,
+            @RequestBody AccountType accountType
+    ) {
+        accountService.getBalance(account, accountType);
     }
 
-    @GetMapping()
-    void getAll(AccountType accountType) {
-        log.info("{}*", accountType);
+    @GetMapping
+    void getAll(@RequestParam AccountType accountType) {
+        accountService.getAll(accountType);
     }
 }
