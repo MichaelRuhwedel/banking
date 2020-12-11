@@ -5,6 +5,6 @@ import lombok.Value;
 import java.math.BigDecimal;
 
 @Value
-public class Amount {
-    private BigDecimal amount;
+public class Money {
+     BigDecimal amount;
 }

@@ -7,16 +7,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class AccountService {
 
-    void deposit(IBAN selected, Amount amount) {
+    void deposit(Iban selected, Money amount) {
         log.info("{}+= {}", selected, amount);
     }
 
-    void transfer(IBAN from, IBAN to, Amount amount) {
+    void transfer(Iban from, Iban to, Money amount) {
         log.info("{}->{} {} ", from, to, amount);
     }
 
-    void getBalance(IBAN account, AccountType accountType) {
-        log.info("{}[{}]", account, accountType);
+    void getBalance(Iban account) {
+        log.info("{}[{}]", account);
     }
 
     void getAll(AccountType accountType) {

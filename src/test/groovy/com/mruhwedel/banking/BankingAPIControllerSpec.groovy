@@ -5,6 +5,8 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.web.reactive.server.WebTestClient
 import spock.lang.Specification
 
+import static com.mruhwedel.banking.BankingTestData.*
+
 import static org.hamcrest.Matchers.equalTo
 
 @SpringBootTest
@@ -13,34 +15,29 @@ class BankingAPIControllerSpec extends Specification {
     def client = WebTestClient.bindToController(new BankingAPIController()).build();
 
     def 'deposits()'() {
-        given:
-
-
         expect:
         client.post()
-                .uri("/api/account/{selected}/deposit", BankingTestData.IBAN.iban)
+                .uri("/api/account/{selected}/deposit", IBAN.value)
     }
 
-    def 'deposit() should up the balance'(){
-        given:
-        def accountResource = '/api/account/{selected}'
+    def 'deposit() should up the balance when a deposit has been made'(){
 
         when: 'deposits'
         client.post()
-                .uri("$accountResource/deposit", BankingTestData.IBAN.iban)
-                .bodyValue(BankingTestData.AMOUNT)
+                .uri('/api/account/{selected}/deposit', IBAN.value)
+                .bodyValue(AMOUNT)
 
 
         and: 'get the balance'
         def exchange = client
                 .get()
-                .uri(accountResource, BankingTestData.IBAN.iban)
+                .uri('/api/account/{selected}', IBAN.value)
                 .exchange()
 
         then:
         exchange
-                .expectBody(Amount)
-                .value(equalTo(BankingTestData.AMOUNT))
+                .expectBody(Money)
+                .value(equalTo(AMOUNT))
     }
 
     def 'transfers() '() {

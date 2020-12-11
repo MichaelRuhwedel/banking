@@ -14,27 +14,25 @@ public class BankingAPIController {
     private final AccountService accountService;
 
     @PostMapping("{selected}/deposit")
-    void deposit(@RequestParam
-                         IBAN selected,
-                 @RequestBody Amount amount) {
-        accountService.deposit(selected, amount);
+    void deposit(
+            @RequestParam Iban ibanOfAccount,
+            @RequestBody Money money
+    ) {
+        accountService.deposit(ibanOfAccount, money);
     }
 
     @PostMapping("{from}/transfer-to/${to}")
     void transfer(
-            @RequestParam IBAN from,
-            @RequestParam IBAN to,
-            @RequestBody Amount amount
+            @RequestParam Iban from,
+            @RequestParam Iban to,
+            @RequestBody Money money
     ) {
-        accountService.transfer(from, to, amount);
+        accountService.transfer(from, to, money);
     }
 
-    @GetMapping("{selected}")
-    void balance(
-            @RequestParam IBAN account,
-            @RequestBody AccountType accountType
-    ) {
-        accountService.getBalance(account, accountType);
+    @GetMapping("/{selected}")
+    void balance(@RequestParam Iban selected) {
+        accountService.getBalance(selected);
     }
 
     @GetMapping
