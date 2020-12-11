@@ -25,7 +25,7 @@ class BankingAPIControllerSpec extends Specification {
         when: 'deposits'
         client.post()
                 .uri('/api/account/{selected}/deposit', IBAN.value)
-                .bodyValue(AMOUNT)
+                .bodyValue(MONEY)
 
 
         and: 'get the balance'
@@ -37,7 +37,7 @@ class BankingAPIControllerSpec extends Specification {
         then:
         exchange
                 .expectBody(Money)
-                .value(equalTo(AMOUNT))
+                .value(equalTo(MONEY))
     }
 
     def 'transfers() '() {
