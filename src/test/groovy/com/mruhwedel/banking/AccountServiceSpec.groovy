@@ -9,7 +9,8 @@ import static com.mruhwedel.banking.BankingTestData.IBAN
 
 class AccountServiceSpec extends Specification {
     def service = new AccountService(
-            Mock(AccountRepository)
+            Mock(AccountRepository),
+            Mock(TransactionRepository)
     )
 
     def 'deposit() should load an account, add the amount and persist it'() {

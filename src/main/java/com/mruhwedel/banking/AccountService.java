@@ -20,6 +20,7 @@ import static lombok.AccessLevel.PACKAGE;
 @RequiredArgsConstructor
 public class AccountService {
     private final AccountRepository accountRepository;
+    private final TransactionRepository transactionRepository;
 
     void deposit(Iban selected, Money money) {
         log.info("{}+= {}", selected, money);
