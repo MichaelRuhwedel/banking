@@ -14,7 +14,7 @@ class AccountServiceSpec extends Specification {
 
     def 'deposit() should load an account, add the amount and persist it'() {
         given:
-        def account = new Account(ACCOUNT_TYPE) // account starts with 0.0 balance
+        def account = new Account() // account starts with 0.0 balance
 
         when:
         service.deposit(IBAN, MONEY)
@@ -45,13 +45,13 @@ class AccountServiceSpec extends Specification {
 
         and: 'persist balance a'
         1 * service.accountRepository.save({
-            (it as Account).iban == IBAN
+            (it as Account).iban == IBAN.value
             (it as Account).balance == originalBalance - transfer.amount
         })
 
         and: 'persist balance b'
         1 * service.accountRepository.save({
-            (it as Account).iban == IBAN
+            (it as Account).iban == IBAN_2.value
             (it as Account).balance == transfer.amount
         })
 
@@ -59,7 +59,7 @@ class AccountServiceSpec extends Specification {
 
     def "getBalance(): Should return the balance"() {
         given:
-        def account = new Account(ACCOUNT_TYPE)
+        def account = new Account()
         account.deposit(new Money(123.0))
 
         when:

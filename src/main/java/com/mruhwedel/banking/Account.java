@@ -20,17 +20,20 @@ public class Account {
     public Account(AccountType accountType, Iban iban) {
         this.id = randomUUID();
         this.accountType = accountType;
-        this.iban = iban;
+        this.iban = iban.getValue();
     }
 
     @Id
     private UUID id;
     private AccountType accountType;
     private BigDecimal balance = ZERO;
-    private Iban iban;
+    private String iban;
 
     void deposit(Money money) {
         balance = balance.add(money.getAmount());
     }
 
+    public void withdraw(Money amount) {
+        balance = balance.subtract(amount.getAmount());
+    }
 }

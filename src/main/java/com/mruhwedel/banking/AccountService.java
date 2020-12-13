@@ -3,11 +3,15 @@ package com.mruhwedel.banking;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.util.Optionals;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
 
+import static com.mruhwedel.banking.TransferResult.ACCOUNT_NONEXISTANT;
+import static com.mruhwedel.banking.TransferResult.TRANSFERRED;
+import static java.util.Arrays.asList;
 import static lombok.AccessLevel.PACKAGE;
 
 @Slf4j
@@ -20,23 +24,40 @@ public class AccountService {
     void deposit(Iban selected, Money money) {
         log.info("{}+= {}", selected, money);
 
-        accountRepository
-                .findByIban(selected)
-                .ifPresent(account -> {
-                    account.deposit(money);
-                    accountRepository.save(account);
-                });
+        getByIban(selected).ifPresent(account -> {
+            account.deposit(money);
+            accountRepository.save(account);
+        });
     }
 
-    void transfer(Iban from, Iban to, Money amount) {
+    TransferResult transfer(Iban from, Iban to, Money amount) {
         log.info("{}->{} {} ", from, to, amount);
+        return Optionals
+                .withBoth(getByIban(from), getByIban(to))
+                .map(
+                        p -> {
+                            Account source = p.getFirst();
+                            Account destination = p.getSecond();
 
+                            source.withdraw(amount);
+                            destination.deposit(amount);
+
+                            accountRepository.save(source);
+                            accountRepository.save(destination);
+
+                            return TRANSFERRED;
+                        }
+                )
+                .orElse(ACCOUNT_NONEXISTANT);
+    }
+
+    private Optional<Account> getByIban(Iban from) {
+        return accountRepository.findByIban(from);
     }
 
     Optional<Money> getBalance(Iban account) {
         log.info("{}", account);
-        return accountRepository
-                .findByIban(account)
+        return getByIban(account)
                 .map(Account::getBalance)
                 .map(Money::new);
 
