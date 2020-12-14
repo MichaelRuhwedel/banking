@@ -53,6 +53,7 @@ public class BankingAPIController {
     }
 
     @GetMapping("/api/accounts")
-    List<Account> getAllFiltered(@RequestParam List<AccountType> accountTypes) { return accountService.getAllFiltered(accountTypes);
+    List<Account> getAllFiltered(@RequestParam List<AccountType> accountTypes) {
+        return accountService.getAllFiltered(accountTypes);
     }
 }
