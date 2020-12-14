@@ -23,12 +23,15 @@ public class Account {
     }
 
 
-    private UUID id;
     private AccountType accountType;
     private BigDecimal balance = ZERO;
 
     @Id
     private String iban;
+
+    public Iban getIban() {
+        return new Iban(iban);
+    }
 
     @OneToOne
     private Account checking;
@@ -39,5 +42,9 @@ public class Account {
 
     public void withdraw(Money amount) {
         balance = balance.subtract(amount.getAmount());
+    }
+
+    public Money getBalance() {
+        return new Money(balance);
     }
 }

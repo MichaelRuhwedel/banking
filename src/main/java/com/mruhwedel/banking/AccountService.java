@@ -1,6 +1,7 @@
 package com.mruhwedel.banking;
 
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -23,7 +24,8 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
 
-    Account create(AccountCreationDto creationDto) {
+    Iban create(AccountCreationDto creationDto) {
+        log.info("* {} ref: {}", creationDto.getAccountType(), creationDto.getReferenceIban());
         AccountType accountType = creationDto.getAccountType();
 
         Account entity = new Account(accountType, generateRandomIban());
@@ -32,7 +34,9 @@ public class AccountService {
             Account checking = accountRepository.getOne(creationDto.getReferenceIban().getValue());
             entity.setChecking(checking);
         }
-        return accountRepository.save(entity);
+        return accountRepository
+                .save(entity)
+                .getIban();
     }
 
     private Iban generateRandomIban() {
@@ -40,7 +44,7 @@ public class AccountService {
     }
 
     void deposit(Iban selected, Money money) {
-        log.info("{}+= {}", selected, money);
+        log.info("{}+= {}", selected.getValue(), money.getAmount());
 
         getByIban(selected).ifPresent(account -> {
             account.deposit(money);
@@ -48,8 +52,11 @@ public class AccountService {
         });
     }
 
-    TransferResult transfer(Iban from, Iban to, Money amount) {
-        log.info("{}->{} {} ", from, to, amount);
+    TransferResult transfer(
+            @NonNull Iban from,
+            @NonNull Iban to,
+            @NonNull Money amount) {
+        log.info("{}->{} {} ", from.getValue(), to.getValue(), amount);
         return Optionals
                 .withBoth(getByIban(from), getByIban(to))
                 .map(
@@ -72,14 +79,13 @@ public class AccountService {
     }
 
     private Optional<Account> getByIban(Iban from) {
-        return accountRepository.findByIban(from);
+        return accountRepository.findByIban(from.getValue());
     }
 
     Optional<Money> getBalance(Iban account) {
-        log.info("{}", account);
+        log.info("{}?", account.getValue());
         return getByIban(account)
-                .map(Account::getBalance)
-                .map(Money::new);
+                .map(Account::getBalance);
     }
 
     List<Account> getAllFiltered(List<AccountType> filter) {
@@ -88,7 +94,7 @@ public class AccountService {
     }
 
     public List<TransactionLog> getTransactions(Iban selected) {
-        log.info("{}t", selected);
+        log.info("{}t", selected.getValue());
         return transactionRepository.findByIban(selected);
     }
 }

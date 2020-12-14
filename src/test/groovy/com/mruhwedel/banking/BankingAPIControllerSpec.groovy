@@ -1,6 +1,6 @@
 package com.mruhwedel.banking
 
-
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.web.reactive.server.WebTestClient
 import spock.lang.Specification
@@ -8,9 +8,10 @@ import spock.lang.Specification
 import static com.mruhwedel.banking.BankingTestData.*
 
 import static org.hamcrest.Matchers.equalTo
-
-@SpringBootTest
+@SpringBootTest()
+@AutoConfigureMockMvc
 class BankingAPIControllerSpec extends Specification {
+
 
     def client = WebTestClient.bindToController(new BankingAPIController()).build();
 
