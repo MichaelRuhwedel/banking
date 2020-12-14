@@ -108,7 +108,7 @@ public class AccountService {
 
     public List<TransactionLog> getTransactions(Iban iban) {
         log.info("{}t", iban.getValue());
-        return transactionRepository.findByIban(iban);
+        return transactionRepository.findByIban(iban.getValue());
     }
 
     public Optional<Account> lock(Iban iban) {

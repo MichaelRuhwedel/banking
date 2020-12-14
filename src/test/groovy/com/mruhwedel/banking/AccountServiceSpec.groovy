@@ -59,8 +59,8 @@ class AccountServiceSpec extends Specification {
 
         and: 'creates a transaction log entry'
         1 * service.transactionRepository.save({ TransactionLog it ->
-            it.ibanFrom == IBAN
-            it.ibanTo == IBAN_2
+            it.ibanFrom == IBAN.value
+            it.ibanTo == IBAN_2.value
             it.amount == transfer.amount
         })
 

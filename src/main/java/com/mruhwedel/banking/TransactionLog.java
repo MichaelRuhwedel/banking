@@ -32,12 +32,4 @@ public class TransactionLog {
 
         id = UUID.randomUUID();
     }
-
-    public Iban getIbanFrom() {
-        return new Iban(ibanFrom);
-    }
-
-    public Iban getIbanTo() {
-        return new Iban(ibanTo);
-    }
 }

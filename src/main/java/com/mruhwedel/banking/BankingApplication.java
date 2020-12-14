@@ -1,6 +1,7 @@
 package com.mruhwedel.banking;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -32,7 +33,7 @@ public class BankingApplication {
             log.info("Accounts found with findAll():");
             log.info("-------------------------------");
             for (Account account : accountService.getAllFiltered(Arrays.asList(AccountType.values()))) {
-                log.info("{}", account);
+                log.info("{}: {} references: {}", account.getAccountType(), account.getIban(), account.getChecking());
             }
         };
     }

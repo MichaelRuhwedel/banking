@@ -15,5 +15,5 @@ public interface TransactionRepository extends CrudRepository<TransactionLog, UU
             "WHERE " +
             "   t.ibanFrom = ?1 OR " +
             "   t.ibanTo = ?1")
-    List<TransactionLog> findByIban(Iban iban);
+    List<TransactionLog> findByIban(String iban);
 }
