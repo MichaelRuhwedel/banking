@@ -72,6 +72,6 @@ public class BankingAPIController {
 
     @DeleteMapping("{iban}/lock")
     void unlock(@PathVariable("iban") Iban iban) {
-        accountService.lock(iban);
+        accountService.unlock(iban);
     }
 }
