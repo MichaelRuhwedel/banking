@@ -65,10 +65,7 @@ public class AccountService {
                             Account source = p.getFirst();
                             Account destination = p.getSecond();
 
-                            if (source.getAccountType() == SAVINGS && !source.getChecking().equals(destination)) {
-                                return false;
-                            }
-                            if (source.getAccountType() == PRIVATE_LOAN) {
+                            if (isNotAllowed(source, destination)) {
                                 return false;
                             }
 
@@ -84,6 +81,13 @@ public class AccountService {
                         }
                 )
                 .orElse(FALSE);
+    }
+
+    private boolean isNotAllowed(Account source, Account destination) {
+        AccountType sourceType = source.getAccountType();
+        return source.isLocked() || destination.isLocked()
+                || (sourceType == SAVINGS && !source.getChecking().equals(destination))
+                || (sourceType == PRIVATE_LOAN);
     }
 
     private Optional<Account> getByIban(Iban from) {

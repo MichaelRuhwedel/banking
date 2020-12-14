@@ -86,6 +86,22 @@ class AccountServiceSpec extends Specification {
         destination << AccountType.values()
     }
 
+
+    def 'transfer() IMPOSSIBLE from a locked account'() {
+        given: 'accounts'
+        def sourceAccount = new Account(CHECKING, IBAN) // account starts with 0.0 balance
+        sourceAccount.setLocked(true)
+
+        service.accountRepository.findById(sourceAccount.iban.value) >> Optional.of(sourceAccount)
+        service.accountRepository.findById(IBAN_2.value) >> Optional.of(Stub(Account))
+
+        when:
+        def result = service.transfer(sourceAccount.iban, IBAN_2, MONEY)
+
+        then:
+        !result
+    }
+
     def "transfer() from SAVINGS to referenced CHECKING is possible"() {
         given: 'a checking account, ...'
         def accountChecking = new Account(CHECKING, IBAN_CHECKING) // account starts with 0.0 balance
