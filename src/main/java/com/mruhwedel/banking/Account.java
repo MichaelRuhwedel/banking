@@ -4,13 +4,12 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import java.math.BigDecimal;
 
 import static com.mruhwedel.banking.AccountType.SAVINGS;
 import static java.math.BigDecimal.ZERO;
+import static javax.persistence.EnumType.STRING;
 
 @Data
 @Entity
@@ -28,6 +27,7 @@ public class Account {
     }
 
 
+    @Enumerated(STRING)
     private AccountType accountType;
     private BigDecimal balance = ZERO;
     private boolean locked;
