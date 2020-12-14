@@ -1,6 +1,5 @@
 package com.mruhwedel.banking;
 
-import lombok.Data;
 import lombok.Value;
 
 @Value

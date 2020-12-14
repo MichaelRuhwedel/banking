@@ -14,7 +14,6 @@ import java.util.Optional;
 
 import static com.mruhwedel.banking.AccountType.PRIVATE_LOAN;
 import static com.mruhwedel.banking.AccountType.SAVINGS;
-import static com.mruhwedel.banking.TransferResult.*;
 import static java.lang.Boolean.FALSE;
 import static lombok.AccessLevel.PACKAGE;
 
