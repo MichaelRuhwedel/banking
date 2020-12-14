@@ -1,6 +1,7 @@
 package com.mruhwedel.banking;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
@@ -14,8 +15,12 @@ import static java.math.BigDecimal.ZERO;
 @Data
 @Entity
 @NoArgsConstructor
-
+@EqualsAndHashCode(of = "iban")
 public class Account {
+    public Account(Iban iban, Account checking) {
+        this(AccountType.SAVINGS, iban);
+        this.checking = checking;
+    }
 
     public Account(AccountType accountType, Iban iban) {
         this.accountType = accountType;

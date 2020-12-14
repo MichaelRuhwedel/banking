@@ -1,11 +1,17 @@
 package com.mruhwedel.banking
 
 import spock.lang.Specification
+import spock.lang.Unroll
 
+import static com.mruhwedel.banking.AccountType.CHECKING
 import static com.mruhwedel.banking.BankingTestData.ACCOUNT_TYPE
 import static com.mruhwedel.banking.BankingTestData.IBAN_2
+import static com.mruhwedel.banking.BankingTestData.IBAN_CHECKING
+import static com.mruhwedel.banking.BankingTestData.IBAN_SAVINGS
 import static com.mruhwedel.banking.BankingTestData.MONEY
 import static com.mruhwedel.banking.BankingTestData.IBAN
+import static com.mruhwedel.banking.TransferResult.INVALID_ACCOUNT_TARGET
+import static com.mruhwedel.banking.TransferResult.TRANSFERRED
 import static java.math.BigDecimal.ZERO
 
 class AccountServiceSpec extends Specification {
@@ -66,6 +72,62 @@ class AccountServiceSpec extends Specification {
 
     }
 
+    @Unroll
+    def "transfer() from CHECKING to #accountType is possible"(AccountType accountType) {
+        given: 'accounts'
+        def accountChecking = new Account(CHECKING, IBAN_CHECKING) // account starts with 0.0 balance
+        accountChecking.deposit(MONEY)
+
+        def anyAccount = new Account(accountType, IBAN_2)
+
+        service.accountRepository.findByIban(accountChecking.iban.value) >> Optional.of(accountChecking)
+        service.accountRepository.findByIban(anyAccount.iban.value) >> Optional.of(anyAccount)
+
+
+        when:
+        def result = service.transfer(accountChecking.iban, anyAccount.iban, MONEY)
+
+        then:
+        result == TRANSFERRED
+
+        where:
+        accountType << AccountType.values()
+    }
+
+    def "transfer() from SAVINGS to CHECKING is possible"() {
+        given: 'accounts'
+        def accountChecking = new Account(CHECKING, IBAN_CHECKING) // account starts with 0.0 balance
+        accountChecking.deposit(MONEY)
+
+        def accountSavings = new Account(IBAN_SAVINGS, accountChecking)
+
+        service.accountRepository.findByIban(accountChecking.iban.value) >> Optional.of(accountChecking)
+        service.accountRepository.findByIban(accountSavings.iban.value) >> Optional.of(accountSavings)
+
+
+        when:
+        def result = service.transfer(accountChecking.iban, accountSavings.iban, MONEY)
+
+        then:
+        result == TRANSFERRED
+    }
+
+    def "transfer() from SAVINGS to any NON referenced account is NOT possible"() {
+        given: 'accounts'
+        def accountSavings = new Account(IBAN_SAVINGS, Stub(Account)) // is associated with some account
+        def accountChecking = new Account(CHECKING, IBAN_CHECKING)
+
+        service.accountRepository.findByIban(accountSavings.iban.value) >> Optional.of(accountSavings)
+        service.accountRepository.findByIban(IBAN_CHECKING.value) >> Optional.of(accountChecking)
+
+
+        when:
+        def result = service.transfer(accountSavings.iban, IBAN_CHECKING, MONEY)
+
+        then:
+        result == INVALID_ACCOUNT_TARGET
+    }
+
     def "create() Creates an account with the given type "() {
         when:
         service.create(new AccountCreationDto(ACCOUNT_TYPE, null))
@@ -92,7 +154,7 @@ class AccountServiceSpec extends Specification {
             a.accountType == accountType
             a.balance == new Money(ZERO)
             a.checking == checkingAccount
-        }) >>  Stub(Account)
+        }) >> Stub(Account)
     }
 
     def "getBalance(): Should return the balance"() {

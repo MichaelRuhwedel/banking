@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.mruhwedel.banking.AccountType.SAVINGS;
-import static com.mruhwedel.banking.TransferResult.ACCOUNT_NONEXISTANT;
+import static com.mruhwedel.banking.TransferResult.ACCOUNT_NONEXISTENT;
 import static com.mruhwedel.banking.TransferResult.TRANSFERRED;
 import static lombok.AccessLevel.PACKAGE;
 
@@ -66,6 +66,10 @@ public class AccountService {
                             Account source = p.getFirst();
                             Account destination = p.getSecond();
 
+                            if(source.getAccountType() == SAVINGS && !source.getChecking().equals(destination)){
+                                return TransferResult.INVALID_ACCOUNT_TARGET;
+                            }
+
                             source.withdraw(amount);
                             destination.deposit(amount);
 
@@ -77,7 +81,7 @@ public class AccountService {
                             return TRANSFERRED;
                         }
                 )
-                .orElse(ACCOUNT_NONEXISTANT);
+                .orElse(ACCOUNT_NONEXISTENT);
     }
 
     private Optional<Account> getByIban(Iban from) {
