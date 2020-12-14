@@ -8,9 +8,11 @@ import spock.lang.Specification
 import spock.lang.Stepwise
 
 import static com.mruhwedel.banking.AccountType.CHECKING
+import static com.mruhwedel.banking.AccountType.PRIVATE_LOAN
 import static com.mruhwedel.banking.AccountType.SAVINGS
 import static com.mruhwedel.banking.BankingTestData.*
 import static org.hamcrest.Matchers.equalTo
+import static org.hamcrest.Matchers.hasSize
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -115,5 +117,33 @@ class BankingFunctionalSpec extends Specification {
         then:
         exchange.expectBody(Money)
                 .value(Money::getAmount, equalTo(transfer))
+    }
+
+    def '... creating a loan account'() {
+        when:
+        def exchange = createAccount(PRIVATE_LOAN)
+
+        then:
+        exchange.expectStatus().isCreated()
+    }
+
+    def '.. querying by account types works'(Set<AccountType> types) {
+        when:
+        def exchange = client.get().uri(
+                uriBuilder -> uriBuilder.path('/api/accounts')
+                        .queryParam('accountTypes', types)
+                        .build()
+        )
+                .exchange()
+        then:
+        exchange
+                .expectBody(Collection<Account>).value(hasSize(types.size()))
+
+        where:
+        types << [
+                EnumSet.allOf(AccountType),
+                EnumSet.of(CHECKING, PRIVATE_LOAN),
+                EnumSet.of(CHECKING)
+        ]
     }
 }
