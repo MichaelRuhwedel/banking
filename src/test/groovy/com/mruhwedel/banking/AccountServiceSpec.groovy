@@ -22,8 +22,8 @@ class AccountServiceSpec extends Specification {
 
         then:
         1 * service.accountRepository.findByIban(IBAN) >> Optional.of(account)
-        1 * service.accountRepository.save({
-            (it as Account).balance == MONEY.amount
+        1 * service.accountRepository.save({ Account it ->
+            it.balance == MONEY.amount
         })
     }
 
@@ -45,23 +45,23 @@ class AccountServiceSpec extends Specification {
         1 * service.accountRepository.findByIban(IBAN_2) >> Optional.of(b)
 
         and: 'persist balance a'
-        1 * service.accountRepository.save({
-            (it as Account).iban == IBAN.value
-            (it as Account).balance == originalBalance - transfer.amount
+        1 * service.accountRepository.save({ Account it ->
+            it.iban == IBAN.value
+            it.balance == originalBalance - transfer.amount
         })
 
         and: 'persist balance b'
         1 * service.accountRepository.save({
-            (it as Account).iban == IBAN_2.value
-            (it as Account).balance == transfer.amount
+            it.iban == IBAN_2.value
+            it.balance == transfer.amount
         })
 
         and: 'creates a transaction log entry'
-            1 * service.transactionRepository.save({TransactionLog it ->
-                it.ibanFrom == IBAN.value
-                it.ibanTo == IBAN_2.value
-                it.amount  == transfer.amount
-            })
+        1 * service.transactionRepository.save({ TransactionLog it ->
+            it.ibanFrom == IBAN.value
+            it.ibanTo == IBAN_2.value
+            it.amount == transfer.amount
+        })
 
     }
 
@@ -92,6 +92,5 @@ class AccountServiceSpec extends Specification {
         then:
         1 * service.accountRepository.findByAccountType(filter) >> accounts
         result == accounts
-
     }
 }
