@@ -113,19 +113,23 @@ class AccountServiceSpec extends Specification {
     }
 
     def "transfer() from SAVINGS to any NON referenced account is NOT possible"() {
-        given: 'accounts'
+        given: 'a savings account of some account'
         def accountSavings = new Account(IBAN_SAVINGS, Stub(Account)) // is associated with some account
-        def accountChecking = new Account(CHECKING, IBAN_CHECKING)
-
         service.accountRepository.findByIban(accountSavings.iban.value) >> Optional.of(accountSavings)
-        service.accountRepository.findByIban(IBAN_CHECKING.value) >> Optional.of(accountChecking)
 
+        and: 'a checking account'
+        def accountChecking = new Account(CHECKING, IBAN_CHECKING)
+        service.accountRepository.findByIban(IBAN_CHECKING.value) >> Optional.of(accountChecking)
 
         when:
         def result = service.transfer(accountSavings.iban, IBAN_CHECKING, MONEY)
 
         then:
         result == INVALID_ACCOUNT_TARGET
+
+        and:
+        0 * service.accountRepository.save(_)
+        0 * service.transactionRepository.save(_)
     }
 
     def "create() Creates an account with the given type "() {
