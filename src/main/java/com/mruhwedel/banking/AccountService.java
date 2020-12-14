@@ -64,7 +64,7 @@ public class AccountService {
                 .map(Money::new);
     }
 
-    List<Account> getAllFiltered(AccountType filter) {
+    List<Account> getAllFiltered(List<AccountType> filter) {
         log.info("{}*", filter);
         return accountRepository.findByAccountType(filter);
     }

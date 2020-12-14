@@ -83,7 +83,7 @@ class AccountServiceSpec extends Specification {
 
     def 'getAll() will filter by account type'() {
         given:
-        def filter = ACCOUNT_TYPE
+        def filter = [ACCOUNT_TYPE]
         def accounts = [new Account()]
 
         when:
