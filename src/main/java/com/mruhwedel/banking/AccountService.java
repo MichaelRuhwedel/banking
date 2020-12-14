@@ -27,14 +27,13 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
 
-    Iban create(AccountCreationDto creationDto) {
-        log.info("* {} ref: {}", creationDto.getAccountType(), creationDto.getReferenceIban());
-        AccountType accountType = creationDto.getAccountType();
+    Iban create(AccountType accountType, Iban referenceIban) {
+        log.info("* {} ref: {}", accountType, referenceIban);
 
         Account entity = new Account(accountType, generateRandomIban());
 
         if (accountType == SAVINGS) {
-            Account checking = accountRepository.getOne(creationDto.getReferenceIban().getValue());
+            Account checking = accountRepository.getOne(referenceIban.getValue());
             entity.setChecking(checking);
         }
         return accountRepository
@@ -89,7 +88,7 @@ public class AccountService {
     }
 
     private Optional<Account> getByIban(Iban from) {
-        return accountRepository.findByIban(from.getValue());
+        return accountRepository.findById(from.getValue());
     }
 
     Optional<Money> getBalance(Iban account) {
@@ -107,4 +106,18 @@ public class AccountService {
         log.info("{}t", selected.getValue());
         return transactionRepository.findByIban(selected);
     }
+
+    public void lock(Iban selected) {
+        log.info("Locking {}", selected.getValue());
+        Account account = accountRepository.getOne(selected.getValue());
+        account.setLocked(true);
+        accountRepository.save(account);
+    }
+
+    public void unlock(Iban selected) {
+        log.info("UNLocking {}", selected.getValue());
+        Account account = accountRepository.getOne(selected.getValue());
+        account.setLocked(false);
+    }
+
 }

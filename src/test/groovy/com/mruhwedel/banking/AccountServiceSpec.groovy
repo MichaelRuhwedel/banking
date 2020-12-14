@@ -6,7 +6,6 @@ import spock.lang.Unroll
 import static com.mruhwedel.banking.AccountType.CHECKING
 import static com.mruhwedel.banking.AccountType.PRIVATE_LOAN
 import static com.mruhwedel.banking.BankingTestData.*
-import static com.mruhwedel.banking.TransferResult.TRANSFERRED
 import static java.math.BigDecimal.ZERO
 
 class AccountServiceSpec extends Specification {
@@ -23,7 +22,7 @@ class AccountServiceSpec extends Specification {
         service.deposit(IBAN, MONEY)
 
         then:
-        1 * service.accountRepository.findByIban(IBAN.value) >> Optional.of(account)
+        1 * service.accountRepository.findById(IBAN.value) >> Optional.of(account)
         1 * service.accountRepository.save({ Account it ->
             it.balance == MONEY
         })
@@ -43,8 +42,8 @@ class AccountServiceSpec extends Specification {
         service.transfer(IBAN, IBAN_2, transfer)
 
         then: 'load the accounts'
-        1 * service.accountRepository.findByIban(IBAN.value) >> Optional.of(a)
-        1 * service.accountRepository.findByIban(IBAN_2.value) >> Optional.of(b)
+        1 * service.accountRepository.findById(IBAN.value) >> Optional.of(a)
+        1 * service.accountRepository.findById(IBAN_2.value) >> Optional.of(b)
 
         and: 'persist balance a'
         1 * service.accountRepository.save({ Account it ->
@@ -72,10 +71,10 @@ class AccountServiceSpec extends Specification {
         given: 'accounts'
         def sourceAccount = new Account(CHECKING, IBAN) // account starts with 0.0 balance
         sourceAccount.deposit(MONEY)
-        service.accountRepository.findByIban(sourceAccount.iban.value) >> Optional.of(sourceAccount)
+        service.accountRepository.findById(sourceAccount.iban.value) >> Optional.of(sourceAccount)
 
         def destinationAccount = new Account(destination, IBAN_2)
-        service.accountRepository.findByIban(destinationAccount.iban.value) >> Optional.of(destinationAccount)
+        service.accountRepository.findById(destinationAccount.iban.value) >> Optional.of(destinationAccount)
 
         when:
         def result = service.transfer(sourceAccount.iban, destinationAccount.iban, MONEY)
@@ -84,18 +83,18 @@ class AccountServiceSpec extends Specification {
         result
 
         where:
-        destination <<  AccountType.values()
+        destination << AccountType.values()
     }
 
     def "transfer() from SAVINGS to referenced CHECKING is possible"() {
         given: 'a checking account, ...'
         def accountChecking = new Account(CHECKING, IBAN_CHECKING) // account starts with 0.0 balance
         accountChecking.deposit(MONEY)
-        service.accountRepository.findByIban(accountChecking.iban.value) >> Optional.of(accountChecking)
+        service.accountRepository.findById(accountChecking.iban.value) >> Optional.of(accountChecking)
 
         and: '... a savings account that belongs to it.'
         def accountSavings = new Account(IBAN_SAVINGS, accountChecking)
-        service.accountRepository.findByIban(accountSavings.iban.value) >> Optional.of(accountSavings)
+        service.accountRepository.findById(accountSavings.iban.value) >> Optional.of(accountSavings)
 
         when:
         def result = service.transfer(accountChecking.iban, accountSavings.iban, MONEY)
@@ -107,11 +106,11 @@ class AccountServiceSpec extends Specification {
     def "transfer() from SAVINGS to any NON referenced account is NOT possible"() {
         given: 'a savings account of some account'
         def accountSavings = new Account(IBAN_SAVINGS, Stub(Account)) // is associated with some account
-        service.accountRepository.findByIban(accountSavings.iban.value) >> Optional.of(accountSavings)
+        service.accountRepository.findById(accountSavings.iban.value) >> Optional.of(accountSavings)
 
         and: 'a checking account'
         def accountChecking = new Account(CHECKING, IBAN_CHECKING)
-        service.accountRepository.findByIban(IBAN_CHECKING.value) >> Optional.of(accountChecking)
+        service.accountRepository.findById(IBAN_CHECKING.value) >> Optional.of(accountChecking)
 
         when:
         def result = service.transfer(accountSavings.iban, IBAN_CHECKING, MONEY)
@@ -136,11 +135,11 @@ class AccountServiceSpec extends Specification {
         given: 'a private loan, ...'
         def accountPrivateLoan = new Account(PRIVATE_LOAN, IBAN_LOAN) // account starts with 0.0 balance
         accountPrivateLoan.deposit(MONEY)
-        service.accountRepository.findByIban(accountPrivateLoan.iban.value) >> Optional.of(accountPrivateLoan)
+        service.accountRepository.findById(accountPrivateLoan.iban.value) >> Optional.of(accountPrivateLoan)
 
         and: '... any other account.'
         def someAccount = new Account(IBAN, accountPrivateLoan)
-        service.accountRepository.findByIban(someAccount.iban.value) >> Optional.of(someAccount)
+        service.accountRepository.findById(someAccount.iban.value) >> Optional.of(someAccount)
 
         when:
         def result = service.transfer(accountPrivateLoan.iban, someAccount.iban, MONEY)
@@ -154,7 +153,7 @@ class AccountServiceSpec extends Specification {
 
     def "create() Creates an account with the given type "() {
         when:
-        service.create(new AccountCreationDto(ACCOUNT_TYPE, null))
+        service.create(ACCOUNT_TYPE, null)
 
         then:
         1 * service.accountRepository.save({ Account a ->
@@ -170,7 +169,7 @@ class AccountServiceSpec extends Specification {
         def checkingAccount = Stub(Account)
 
         when:
-        service.create(new AccountCreationDto(accountType, IBAN))
+        service.create(accountType, IBAN)
 
         then:
         1 * service.accountRepository.getOne(IBAN.value) >> checkingAccount
@@ -190,7 +189,7 @@ class AccountServiceSpec extends Specification {
         def result = service.getBalance(IBAN)
 
         then:
-        service.accountRepository.findByIban(IBAN.value) >> Optional.of(account)
+        service.accountRepository.findById(IBAN.value) >> Optional.of(account)
 
         result
                 .map(account.balance::equals)
@@ -208,5 +207,14 @@ class AccountServiceSpec extends Specification {
         then:
         1 * service.accountRepository.findByAccountType(filter) >> accounts
         result == accounts
+    }
+
+    def 'lock() will lock an account'() {
+        when:
+        service.lock(IBAN)
+
+        then:
+        1 * service.accountRepository.findById(IBAN.value) >> new Account()
+        1 * service.accountRepository.save({ Account it -> it.locked })
     }
 }

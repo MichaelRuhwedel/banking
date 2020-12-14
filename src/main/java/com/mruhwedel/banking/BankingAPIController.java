@@ -2,7 +2,6 @@ package com.mruhwedel.banking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -11,32 +10,36 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
-import static com.mruhwedel.banking.TransferResult.TRANSFERRED;
-import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.CREATED;
 
 @Slf4j
 @Validated
 @RequiredArgsConstructor
 @RestController
+@RequestMapping("/api/accounts")
 public class BankingAPIController {
 
     private final AccountService accountService;
 
-    @PostMapping("/api/accounts")
+    @PostMapping
     @ResponseStatus(CREATED)
     Iban createAccount(@RequestBody AccountCreationDto accountCreationDto) {
-        return accountService.create(accountCreationDto);
+        return accountService.create(
+                accountCreationDto.getAccountType(),
+                accountCreationDto.getReferenceIban()
+        );
     }
 
-    @PostMapping("/api/accounts/{selected}/deposit")
+    @PostMapping("{iban}/deposit")
     void deposit(
-            @PathVariable("selected") Iban selected,
+            @PathVariable("iban") Iban iban,
             @RequestBody Money money
     ) {
-        accountService.deposit(selected, money);
+        accountService.deposit(iban, money);
     }
 
-    @PostMapping("/api/accounts/{from}/transfer-to/{to}")
+    @PostMapping("{from}/transfer-to/{to}")
     void transfer(
             @PathVariable Iban from,
             @PathVariable Iban to,
@@ -47,18 +50,28 @@ public class BankingAPIController {
         }
     }
 
-    @GetMapping("/api/accounts/{selected}")
-    Optional<Money> balance(@Valid @PathVariable("selected") Iban selected) {
-        return accountService.getBalance(selected);
+    @GetMapping("{iban}")
+    Optional<Money> balance(@Valid @PathVariable("iban") Iban iban) {
+        return accountService.getBalance(iban);
     }
 
-    @GetMapping("/api/accounts/{selected}/transactions")
-    List<TransactionLog> transactions(@PathVariable("selected") Iban selected) {
-        return accountService.getTransactions(selected);
+    @GetMapping("{iban}/transactions")
+    List<TransactionLog> transactions(@PathVariable("iban") Iban iban) {
+        return accountService.getTransactions(iban);
     }
 
-    @GetMapping("/api/accounts")
+    @GetMapping
     List<Account> getAllFiltered(@RequestParam("accountTypes") List<AccountType> accountTypes) {
         return accountService.getAllFiltered(accountTypes);
+    }
+
+    @PutMapping("{iban}/lock")
+    void lock(@PathVariable("iban") Iban iban) {
+        accountService.lock(iban);
+    }
+
+    @DeleteMapping("{iban}/lock")
+    void unlock(@PathVariable("iban") Iban iban) {
+        accountService.lock(iban);
     }
 }

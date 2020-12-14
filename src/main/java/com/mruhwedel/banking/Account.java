@@ -30,6 +30,7 @@ public class Account {
 
     private AccountType accountType;
     private BigDecimal balance = ZERO;
+    private boolean locked;
 
     @Id
     private String iban;

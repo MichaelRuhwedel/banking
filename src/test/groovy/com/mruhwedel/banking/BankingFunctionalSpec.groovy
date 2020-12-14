@@ -2,6 +2,7 @@ package com.mruhwedel.banking
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import spock.lang.Shared
 import spock.lang.Specification
@@ -15,8 +16,10 @@ import static org.hamcrest.Matchers.equalTo
 import static org.hamcrest.Matchers.hasSize
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
 @Stepwise
+@ActiveProfiles("Test")
+// Dev profile would bring the prerequisite data with it
+@SpringBootTest(webEnvironment = RANDOM_PORT)
 class BankingFunctionalSpec extends Specification {
 
 
@@ -44,11 +47,10 @@ class BankingFunctionalSpec extends Specification {
                 .exchange()
     }
 
-
     def 'deposit() allows depositions'() {
         when:
         def ex = client.post()
-                .uri('/api/accounts/{selected}/deposit', checkingIban.value)
+                .uri('/api/accounts/{iban}/deposit', checkingIban.value)
                 .bodyValue(MONEY)
                 .exchange()
 
@@ -61,7 +63,7 @@ class BankingFunctionalSpec extends Specification {
         when:
         def exchange = client
                 .get()
-                .uri('/api/accounts/{selected}', checkingIban.value)
+                .uri('/api/accounts/{iban}', checkingIban.value)
                 .exchange()
 
         then:
@@ -99,9 +101,9 @@ class BankingFunctionalSpec extends Specification {
     }
 
 
-    def '... checking account will have an DEcreased  balance '() {
+    def '... checking account will have a DEcreased balance '() {
         when:
-        def exchange = client.get().uri('/api/accounts/{selected}', checkingIban.value)
+        def exchange = client.get().uri('/api/accounts/{iban}', checkingIban.value)
                 .exchange()
 
         then:
@@ -111,7 +113,7 @@ class BankingFunctionalSpec extends Specification {
 
     def '... savings account will have an INcreased  balance '() {
         when:
-        def exchange = client.get().uri('/api/accounts/{selected}', savings.value)
+        def exchange = client.get().uri('/api/accounts/{iban}', savings.value)
                 .exchange()
 
         then:
@@ -119,7 +121,7 @@ class BankingFunctionalSpec extends Specification {
                 .value(Money::getAmount, equalTo(transfer))
     }
 
-    def '... creating a loan account'() {
+    def 'Creating a loan account'() {
         when:
         def exchange = createAccount(PRIVATE_LOAN)
 
@@ -127,7 +129,7 @@ class BankingFunctionalSpec extends Specification {
         exchange.expectStatus().isCreated()
     }
 
-    def '.. querying by account types works'(Set<AccountType> types) {
+    def 'Querying by account types works'(Set<AccountType> types) {
         when:
         def exchange = client.get().uri(
                 uriBuilder -> uriBuilder.path('/api/accounts')
@@ -145,5 +147,25 @@ class BankingFunctionalSpec extends Specification {
                 EnumSet.of(CHECKING, PRIVATE_LOAN),
                 EnumSet.of(CHECKING)
         ]
+    }
+
+    def 'Locking an account works'() {
+        when:
+        def exchange = client.put()
+                .uri('/api/accounts/{iban}/lock', savings.value)
+                .exchange()
+
+        then:
+        exchange.expectStatus().isOk()
+    }
+
+    def 'UNlocking an account works'() {
+        when:
+        def exchange = client.delete()
+                .uri('/api/accounts/{iban}/lock', savings.value)
+                .exchange()
+
+        then:
+        exchange.expectStatus().isOk()
     }
 }
