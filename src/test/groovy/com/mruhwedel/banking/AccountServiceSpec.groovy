@@ -230,7 +230,16 @@ class AccountServiceSpec extends Specification {
         service.lock(IBAN)
 
         then:
-        1 * service.accountRepository.findById(IBAN.value) >> new Account()
+        1 * service.accountRepository.getOne(IBAN.value) >> new Account()
         1 * service.accountRepository.save({ Account it -> it.locked })
+    }
+
+    def 'unlock() will unlock an account'() {
+        when:
+        service.unlock(IBAN)
+
+        then:
+        1 * service.accountRepository.getOne(IBAN.value) >> new Account(locked: true)
+        1 * service.accountRepository.save({ Account it -> !it.locked })
     }
 }

@@ -44,10 +44,10 @@ public class AccountService {
         return new Iban("DE" + RandomStringUtils.randomNumeric(20));
     }
 
-    void deposit(Iban selected, Money money) {
-        log.info("{}+= {}", selected.getValue(), money.getAmount());
+    void deposit(Iban iban, Money money) {
+        log.info("{}+= {}", iban.getValue(), money.getAmount());
 
-        getByIban(selected).ifPresent(account -> {
+        getByIban(iban).ifPresent(account -> {
             account.deposit(money);
             accountRepository.save(account);
         });
@@ -105,22 +105,23 @@ public class AccountService {
         return accountRepository.findByAccountType(filter);
     }
 
-    public List<TransactionLog> getTransactions(Iban selected) {
-        log.info("{}t", selected.getValue());
-        return transactionRepository.findByIban(selected);
+    public List<TransactionLog> getTransactions(Iban iban) {
+        log.info("{}t", iban.getValue());
+        return transactionRepository.findByIban(iban);
     }
 
-    public void lock(Iban selected) {
-        log.info("Locking {}", selected.getValue());
-        Account account = accountRepository.getOne(selected.getValue());
+    public void lock(Iban iban) {
+        log.info("Locking {}", iban.getValue());
+        Account account = accountRepository.getOne(iban.getValue());
         account.setLocked(true);
         accountRepository.save(account);
     }
 
-    public void unlock(Iban selected) {
-        log.info("UNLocking {}", selected.getValue());
-        Account account = accountRepository.getOne(selected.getValue());
+    public void unlock(Iban iban) {
+        log.info("UNLocking {}", iban.getValue());
+        Account account = accountRepository.getOne(iban.getValue());
         account.setLocked(false);
+        accountRepository.save(account);
     }
 
 }
