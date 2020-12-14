@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mruhwedel.banking.AccountType.SAVINGS;
 import static com.mruhwedel.banking.TransferResult.ACCOUNT_NONEXISTANT;
 import static com.mruhwedel.banking.TransferResult.TRANSFERRED;
 import static lombok.AccessLevel.PACKAGE;
@@ -21,8 +22,17 @@ import static lombok.AccessLevel.PACKAGE;
 public class AccountService {
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
-    Account create(AccountType accountType){
-       return accountRepository.save(new Account(accountType, generateRandomIban()));
+
+    Account create(AccountCreationDto creationDto) {
+        AccountType accountType = creationDto.getAccountType();
+
+        Account entity = new Account(accountType, generateRandomIban());
+
+        if (accountType == SAVINGS) {
+            Account checking = accountRepository.getOne(creationDto.getReferenceIban().getValue());
+            entity.setChecking(checking);
+        }
+        return accountRepository.save(entity);
     }
 
     private Iban generateRandomIban() {

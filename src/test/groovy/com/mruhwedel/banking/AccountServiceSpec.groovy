@@ -67,15 +67,33 @@ class AccountServiceSpec extends Specification {
 
     def "create() Creates an account with the given type "() {
         when:
-        service.create(ACCOUNT_TYPE)
+        service.create(new AccountCreationDto(ACCOUNT_TYPE, null))
 
         then:
-        1 * service.accountRepository.save({Account a ->
+        1 * service.accountRepository.save({ Account a ->
             a.accountType == ACCOUNT_TYPE
             a.balance == 0.0
             a.iban =~ /DE[0-9]{20}/
         })
     }
+
+    def "create() Savings account references checking "() {
+        given:
+        def accountType = AccountType.SAVINGS
+        def checkingAccount = Stub(Account)
+
+        when:
+        service.create(new AccountCreationDto(accountType, IBAN))
+
+        then:
+        1 * service.accountRepository.getOne(IBAN.value) >> checkingAccount
+        1 * service.accountRepository.save({ Account a ->
+            a.accountType == accountType
+            a.balance == 0.0
+            a.checking == checkingAccount
+        })
+    }
+
     def "getBalance(): Should return the balance"() {
         given:
         def account = new Account()
