@@ -42,7 +42,7 @@ public class BankingAPIController {
             @PathVariable Iban to,
             @RequestBody Money money
     ) {
-        if (accountService.transfer(from, to, money) != TRANSFERRED) {
+        if (!accountService.transfer(from, to, money)) {
             throw new ResponseStatusException(BAD_REQUEST);
         }
     }

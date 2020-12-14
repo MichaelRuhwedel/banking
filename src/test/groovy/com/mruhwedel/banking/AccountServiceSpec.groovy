@@ -5,13 +5,7 @@ import spock.lang.Unroll
 
 import static com.mruhwedel.banking.AccountType.CHECKING
 import static com.mruhwedel.banking.AccountType.PRIVATE_LOAN
-import static com.mruhwedel.banking.BankingTestData.ACCOUNT_TYPE
-import static com.mruhwedel.banking.BankingTestData.IBAN_2
-import static com.mruhwedel.banking.BankingTestData.IBAN_CHECKING
-import static com.mruhwedel.banking.BankingTestData.IBAN_SAVINGS
-import static com.mruhwedel.banking.BankingTestData.MONEY
-import static com.mruhwedel.banking.BankingTestData.IBAN
-import static com.mruhwedel.banking.TransferResult.INVALID_ACCOUNT_TARGET
+import static com.mruhwedel.banking.BankingTestData.*
 import static com.mruhwedel.banking.TransferResult.TRANSFERRED
 import static java.math.BigDecimal.ZERO
 
@@ -74,26 +68,26 @@ class AccountServiceSpec extends Specification {
     }
 
     @Unroll
-    def 'transfer() #sourceDestination is possible'(List<AccountType> sourceDestination) {
+    def 'transfer() Checking to #destination is possible'(AccountType destination) {
         given: 'accounts'
-        def sourceAccount = new Account(sourceDestination[0], IBAN) // account starts with 0.0 balance
+        def sourceAccount = new Account(CHECKING, IBAN) // account starts with 0.0 balance
         sourceAccount.deposit(MONEY)
         service.accountRepository.findByIban(sourceAccount.iban.value) >> Optional.of(sourceAccount)
 
-        def destinationAccount = new Account(sourceDestination[1], IBAN_2)
+        def destinationAccount = new Account(destination, IBAN_2)
         service.accountRepository.findByIban(destinationAccount.iban.value) >> Optional.of(destinationAccount)
 
         when:
         def result = service.transfer(sourceAccount.iban, destinationAccount.iban, MONEY)
 
         then:
-        result == TRANSFERRED
+        result
 
         where:
-        sourceDestination  << ([[CHECKING, PRIVATE_LOAN],AccountType.values()].combinations())
+        destination <<  AccountType.values()
     }
 
-    def "transfer() from SAVINGS to CHECKING is possible"() {
+    def "transfer() from SAVINGS to referenced CHECKING is possible"() {
         given: 'a checking account, ...'
         def accountChecking = new Account(CHECKING, IBAN_CHECKING) // account starts with 0.0 balance
         accountChecking.deposit(MONEY)
@@ -107,7 +101,7 @@ class AccountServiceSpec extends Specification {
         def result = service.transfer(accountChecking.iban, accountSavings.iban, MONEY)
 
         then:
-        result == TRANSFERRED
+        result
     }
 
     def "transfer() from SAVINGS to any NON referenced account is NOT possible"() {
@@ -123,11 +117,39 @@ class AccountServiceSpec extends Specification {
         def result = service.transfer(accountSavings.iban, IBAN_CHECKING, MONEY)
 
         then:
-        result == INVALID_ACCOUNT_TARGET
+        !result
 
         and:
         0 * service.accountRepository.save(_)
         0 * service.transactionRepository.save(_)
+    }
+
+    /**
+     * Private loan account - transferring money from any account is possible.
+     * Withdrawal is not possible
+     *
+     * tbh i don't really understand the spec here, please tell me what you'd expect to happen.
+     * My interpretation is below:
+     */
+    @Unroll
+    def "transfer() from PRIVATE_LOAN to any Account is NOT possible"() {
+        given: 'a private loan, ...'
+        def accountPrivateLoan = new Account(PRIVATE_LOAN, IBAN_LOAN) // account starts with 0.0 balance
+        accountPrivateLoan.deposit(MONEY)
+        service.accountRepository.findByIban(accountPrivateLoan.iban.value) >> Optional.of(accountPrivateLoan)
+
+        and: '... any other account.'
+        def someAccount = new Account(IBAN, accountPrivateLoan)
+        service.accountRepository.findByIban(someAccount.iban.value) >> Optional.of(someAccount)
+
+        when:
+        def result = service.transfer(accountPrivateLoan.iban, someAccount.iban, MONEY)
+
+        then:
+        !result
+
+        where:
+        destinationAccount << AccountType.values()
     }
 
     def "create() Creates an account with the given type "() {

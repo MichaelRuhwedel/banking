@@ -12,8 +12,10 @@ import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mruhwedel.banking.AccountType.PRIVATE_LOAN;
 import static com.mruhwedel.banking.AccountType.SAVINGS;
 import static com.mruhwedel.banking.TransferResult.*;
+import static java.lang.Boolean.FALSE;
 import static lombok.AccessLevel.PACKAGE;
 
 @Slf4j
@@ -53,7 +55,7 @@ public class AccountService {
         });
     }
 
-    TransferResult transfer(
+    boolean transfer(
             @NonNull Iban from,
             @NonNull Iban to,
             @NonNull Money amount) {
@@ -65,8 +67,11 @@ public class AccountService {
                             Account source = p.getFirst();
                             Account destination = p.getSecond();
 
-                            if(source.getAccountType() == SAVINGS && !source.getChecking().equals(destination)){
-                                return INVALID_ACCOUNT_TARGET;
+                            if (source.getAccountType() == SAVINGS && !source.getChecking().equals(destination)) {
+                                return false;
+                            }
+                            if (source.getAccountType() == PRIVATE_LOAN) {
+                                return false;
                             }
 
                             source.withdraw(amount);
@@ -77,10 +82,10 @@ public class AccountService {
 
                             transactionRepository.save(new TransactionLog(source, destination, amount));
 
-                            return TRANSFERRED;
+                            return true;
                         }
                 )
-                .orElse(ACCOUNT_NONEXISTENT);
+                .orElse(FALSE);
     }
 
     private Optional<Account> getByIban(Iban from) {
