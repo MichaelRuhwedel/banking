@@ -2,6 +2,7 @@ package com.mruhwedel.banking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -10,8 +11,7 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.*;
 
 @Slf4j
 @Validated
@@ -51,8 +51,9 @@ public class BankingAPIController {
     }
 
     @GetMapping("{iban}")
-    Optional<Money> balance(@Valid @PathVariable("iban") Iban iban) {
-        return accountService.getBalance(iban);
+    Money balance(@Valid @PathVariable("iban") Iban iban) {
+        return accountService.getBalance(iban)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
     }
 
     @GetMapping("{iban}/transactions")
@@ -61,17 +62,22 @@ public class BankingAPIController {
     }
 
     @GetMapping
-    List<Account> getAllFiltered(@RequestParam("accountTypes") List<AccountType> accountTypes) {
+    List<Account> getAllFiltered(@RequestParam(value = "accountTypes", required = false, defaultValue = "[]")
+                                         List<AccountType> accountTypes) {
         return accountService.getAllFiltered(accountTypes);
     }
 
     @PutMapping("{iban}/lock")
     void lock(@PathVariable("iban") Iban iban) {
-        accountService.lock(iban);
+        accountService
+                .lock(iban)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
     }
 
     @DeleteMapping("{iban}/lock")
     void unlock(@PathVariable("iban") Iban iban) {
-        accountService.unlock(iban);
+        accountService
+                .unlock(iban)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
     }
 }

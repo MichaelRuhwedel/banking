@@ -35,9 +35,9 @@ public class AccountService {
             Account checking = accountRepository.getOne(referenceIban.getValue());
             entity.setChecking(checking);
         }
-        return accountRepository
-                .save(entity)
-                .getIban();
+        Account created = accountRepository.save(entity);
+
+        return new Iban(created.getIban());
     }
 
     private Iban generateRandomIban() {
@@ -97,7 +97,8 @@ public class AccountService {
     Optional<Money> getBalance(Iban account) {
         log.info("{}?", account.getValue());
         return getByIban(account)
-                .map(Account::getBalance);
+                .map(Account::getBalance)
+                .map(Money::new);
     }
 
     List<Account> getAllFiltered(List<AccountType> filter) {
@@ -110,18 +111,22 @@ public class AccountService {
         return transactionRepository.findByIban(iban);
     }
 
-    public void lock(Iban iban) {
+    public Optional<Account> lock(Iban iban) {
         log.info("Locking {}", iban.getValue());
-        Account account = accountRepository.getOne(iban.getValue());
-        account.setLocked(true);
-        accountRepository.save(account);
+        return toggleLock(iban, true);
     }
 
-    public void unlock(Iban iban) {
+    public Optional<Account> unlock(Iban iban) {
         log.info("UNLocking {}", iban.getValue());
-        Account account = accountRepository.getOne(iban.getValue());
-        account.setLocked(false);
-        accountRepository.save(account);
+        return toggleLock(iban, false);
     }
 
+    private Optional<Account> toggleLock(Iban iban, boolean locked) {
+        Optional<Account> account = accountRepository.findById(iban.getValue());
+        account.ifPresent(a -> {
+            a.setLocked(locked);
+            accountRepository.save(a);
+        });
+        return account;
+    }
 }

@@ -35,9 +35,6 @@ public class Account {
     @Id
     private String iban;
 
-    public Iban getIban() {
-        return new Iban(iban);
-    }
 
     @OneToOne
     private Account checking;
@@ -50,7 +47,4 @@ public class Account {
         balance = balance.subtract(amount.getAmount());
     }
 
-    public Money getBalance() {
-        return new Money(balance);
-    }
 }

@@ -26,8 +26,8 @@ public class TransactionLog {
             @NonNull Account to,
             @NonNull Money money
     ) {
-        this.ibanFrom = from.getIban().getValue();
-        this.ibanTo = to.getIban().getValue();
+        this.ibanFrom = from.getIban();
+        this.ibanTo = to.getIban();
         this.amount = money.getAmount();
 
         id = UUID.randomUUID();
