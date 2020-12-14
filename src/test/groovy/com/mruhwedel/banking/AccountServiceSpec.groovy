@@ -56,6 +56,13 @@ class AccountServiceSpec extends Specification {
             (it as Account).balance == transfer.amount
         })
 
+        and: 'creates a transaction log entry'
+            1 * service.transactionRepository.save({TransactionLog it ->
+                it.ibanFrom == IBAN.value
+                it.ibanTo == IBAN_2.value
+                it.amount  == transfer.amount
+            })
+
     }
 
     def "getBalance(): Should return the balance"() {

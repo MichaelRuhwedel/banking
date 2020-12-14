@@ -11,7 +11,6 @@ import java.util.Optional;
 
 import static com.mruhwedel.banking.TransferResult.ACCOUNT_NONEXISTANT;
 import static com.mruhwedel.banking.TransferResult.TRANSFERRED;
-import static java.util.Arrays.asList;
 import static lombok.AccessLevel.PACKAGE;
 
 @Slf4j
@@ -46,6 +45,8 @@ public class AccountService {
                             accountRepository.save(source);
                             accountRepository.save(destination);
 
+                            transactionRepository.save(new TransactionLog(source, destination, amount));
+
                             return TRANSFERRED;
                         }
                 )
@@ -61,7 +62,6 @@ public class AccountService {
         return getByIban(account)
                 .map(Account::getBalance)
                 .map(Money::new);
-
     }
 
     List<Account> getAllFiltered(AccountType filter) {
