@@ -68,4 +68,8 @@ public class AccountService {
         log.info("{}*", filter);
         return accountRepository.findByAccountType(filter);
     }
+
+    public void getTransactions(Iban selected) {
+        return transactionRepository.ge
+    }
 }

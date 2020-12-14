@@ -12,9 +12,13 @@ import java.util.UUID;
 @Repository
 public interface AccountRepository extends JpaRepository<Account, UUID> {
 
-    @Query("SELECT a FROM Account a WHERE a.iban = ?1")
+    @Query("SELECT a " +
+            "FROM Account a " +
+            "WHERE a.iban = ?1")
     Optional<Account> findByIban(Iban iban);
 
-    @Query("SELECT a FROM Account a WHERE a.accountType in ?1")
+    @Query("SELECT a " +
+            "FROM Account a " +
+            "WHERE a.accountType in ?1")
     List<Account> findByAccountType(List<AccountType> accountType);
 }

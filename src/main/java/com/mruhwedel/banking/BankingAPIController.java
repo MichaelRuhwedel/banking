@@ -37,6 +37,11 @@ public class BankingAPIController {
         accountService.getBalance(selected);
     }
 
+    @GetMapping("/{selected}/transactions")
+    void transactions(@RequestParam Iban selected) {
+        accountService.getTransactions(selected);
+    }
+
     @GetMapping
     List<Account> getAllFiltered(@RequestParam List<AccountType> filter) { return accountService.getAllFiltered(filter);
     }
