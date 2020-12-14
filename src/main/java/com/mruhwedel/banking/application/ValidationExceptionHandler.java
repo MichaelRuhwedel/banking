@@ -1,4 +1,4 @@
-package com.mruhwedel.banking;
+package com.mruhwedel.banking.application;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

@@ -1,56 +1,56 @@
 plugins {
-	id 'org.springframework.boot' version '2.4.1'
-	id 'io.spring.dependency-management' version '1.0.10.RELEASE'
-	id 'groovy'
+    id 'org.springframework.boot' version '2.4.1'
+    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+    id 'groovy'
 }
 
 sourceCompatibility = '11'
 targetCompatibility = '11'
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
 
-	implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-	implementation 	'org.springdoc:springdoc-openapi-ui:1.5.1'
+    implementation 'org.springdoc:springdoc-openapi-ui:1.5.1'
 
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
 
-	runtimeOnly('com.h2database:h2'){
-		because 'the db we store things in '
-	}
+    runtimeOnly('com.h2database:h2') {
+        because 'the db we store things in '
+    }
 
-	implementation 'org.apache.commons:commons-lang3:3.10'
-	testImplementation('org.springframework.boot:spring-boot-starter-test'){
-		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
-	}
+    implementation 'org.apache.commons:commons-lang3:3.10'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
 
-	testImplementation('org.springframework.boot:spring-boot-starter-webflux'){
-		because 'for now only used by the spring webclient'
-	}
+    testImplementation('org.springframework.boot:spring-boot-starter-webflux') {
+        because 'for now only used by the spring webclient'
+    }
 
-	// mandatory dependencies for using Spock from
-	// https://github.com/spockframework/spock-example/blob/master/build.gradle
-	testImplementation "org.codehaus.groovy:groovy:3.0.7"
-	testImplementation platform("org.spockframework:spock-bom:2.0-M4-groovy-3.0"){
-		because 'Testing is easier with spock'
-	}
-	testImplementation "org.spockframework:spock-core"
-	testImplementation "org.spockframework:spock-spring"
+    // mandatory dependencies for using Spock from
+    // https://github.com/spockframework/spock-example/blob/master/build.gradle
+    testImplementation "org.codehaus.groovy:groovy:3.0.7"
+    testImplementation platform("org.spockframework:spock-bom:2.0-M4-groovy-3.0") {
+        because 'Testing is easier with spock'
+    }
+    testImplementation "org.spockframework:spock-core"
+    testImplementation "org.spockframework:spock-spring"
 
 }
 
 test {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }

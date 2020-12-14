@@ -1,7 +1,10 @@
 package com.mruhwedel.banking;
 
+import com.mruhwedel.banking.domain.Account;
+import com.mruhwedel.banking.domain.AccountService;
+import com.mruhwedel.banking.domain.AccountType;
+import com.mruhwedel.banking.domain.Iban;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,7 +13,7 @@ import org.springframework.context.annotation.Profile;
 
 import java.util.Arrays;
 
-import static com.mruhwedel.banking.AccountType.*;
+import static com.mruhwedel.banking.domain.AccountType.*;
 
 @Slf4j
 @SpringBootApplication

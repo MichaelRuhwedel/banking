@@ -1,13 +1,16 @@
-package com.mruhwedel.banking;
+package com.mruhwedel.banking.domain;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Enumerated;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import java.math.BigDecimal;
 
-import static com.mruhwedel.banking.AccountType.SAVINGS;
+import static com.mruhwedel.banking.domain.AccountType.SAVINGS;
 import static java.math.BigDecimal.ZERO;
 import static javax.persistence.EnumType.STRING;
 

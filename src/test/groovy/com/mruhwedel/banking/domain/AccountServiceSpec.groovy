@@ -1,11 +1,14 @@
-package com.mruhwedel.banking
+package com.mruhwedel.banking.domain
 
+import com.mruhwedel.banking.domain.*
+import com.mruhwedel.banking.repositories.AccountRepository
+import com.mruhwedel.banking.repositories.TransactionRepository
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import static com.mruhwedel.banking.AccountType.CHECKING
-import static com.mruhwedel.banking.AccountType.PRIVATE_LOAN
 import static com.mruhwedel.banking.BankingTestData.*
+import static com.mruhwedel.banking.domain.AccountType.CHECKING
+import static com.mruhwedel.banking.domain.AccountType.PRIVATE_LOAN
 import static java.math.BigDecimal.ZERO
 
 class AccountServiceSpec extends Specification {

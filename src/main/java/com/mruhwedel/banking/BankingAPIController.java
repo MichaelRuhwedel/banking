@@ -1,10 +1,11 @@
 package com.mruhwedel.banking;
 
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import com.mruhwedel.banking.domain.*;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +27,7 @@ public class BankingAPIController {
 
     @PostMapping
     @ResponseStatus(CREATED)
-    Iban createAccount(@RequestBody AccountCreationDto accountCreationDto) {
+    public Iban createAccount(@RequestBody AccountCreationDto accountCreationDto) {
         return accountService.create(
                 accountCreationDto.getAccountType(),
                 accountCreationDto.getReferenceIban()
@@ -35,7 +36,7 @@ public class BankingAPIController {
 
     @Parameter(name = "iban", schema = @Schema(type = "string"))
     @PostMapping("{iban}/deposit")
-    void deposit(
+    public void deposit(
             @PathVariable("iban") Iban iban,
             @RequestBody Money money
     ) {
@@ -45,12 +46,9 @@ public class BankingAPIController {
     @Parameters({
             @Parameter(name = "from", schema = @Schema(type = "string")),
             @Parameter(name = "to", schema = @Schema(type = "string"))
-    }
-    )
-
-
+    })
     @PostMapping("{from}/transfer-to/{to}")
-    void transfer(
+    public void transfer(
             @Valid @PathVariable Iban from,
             @Valid @PathVariable Iban to,
             @Valid @RequestBody Money money
@@ -62,26 +60,26 @@ public class BankingAPIController {
 
     @Parameter(name = "iban", schema = @Schema(type = "string"))
     @GetMapping("{iban}")
-    Money balance(@Valid @PathVariable("iban") Iban iban) {
+    public Money balance(@Valid @PathVariable("iban") Iban iban) {
         return accountService.getBalance(iban)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
     }
 
     @Parameter(name = "iban", schema = @Schema(type = "string"))
     @GetMapping("{iban}/transactions")
-    List<TransactionLog> transactions(@Valid @PathVariable("iban") Iban iban) {
+    public List<TransactionLog> transactions(@Valid @PathVariable("iban") Iban iban) {
         return accountService.getTransactions(iban);
     }
 
     @GetMapping
-    List<Account> getAllFiltered(@RequestParam(value = "accountTypes", required = false)
+    public List<Account> getAllFiltered(@RequestParam(value = "accountTypes", required = false)
                                          List<AccountType> accountTypes) {
         return accountService.getAllFiltered(accountTypes);
     }
 
     @Parameter(name = "iban", schema = @Schema(type = "string"))
     @PutMapping("{iban}/lock")
-    void lock(@PathVariable("iban") Iban iban) {
+    public void lock(@PathVariable("iban") Iban iban) {
         accountService
                 .lock(iban)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
@@ -89,9 +87,15 @@ public class BankingAPIController {
 
     @Parameter(name = "iban", schema = @Schema(type = "string"))
     @DeleteMapping("{iban}/lock")
-    void unlock(@PathVariable("iban") Iban iban) {
+    public void unlock(@PathVariable("iban") Iban iban) {
         accountService
                 .unlock(iban)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
+    }
+
+    @Value
+    public static class AccountCreationDto {
+        AccountType accountType;
+        Iban referenceIban;
     }
 }

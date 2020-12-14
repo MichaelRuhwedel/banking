@@ -1,5 +1,7 @@
-package com.mruhwedel.banking;
+package com.mruhwedel.banking.domain;
 
+import com.mruhwedel.banking.repositories.AccountRepository;
+import com.mruhwedel.banking.repositories.TransactionRepository;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -12,8 +14,8 @@ import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-import static com.mruhwedel.banking.AccountType.PRIVATE_LOAN;
-import static com.mruhwedel.banking.AccountType.SAVINGS;
+import static com.mruhwedel.banking.domain.AccountType.PRIVATE_LOAN;
+import static com.mruhwedel.banking.domain.AccountType.SAVINGS;
 import static java.lang.Boolean.FALSE;
 import static lombok.AccessLevel.PACKAGE;
 
@@ -26,7 +28,7 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
 
-    Iban create(AccountType accountType, Iban referenceIban) {
+    public Iban create(AccountType accountType, Iban referenceIban) {
         log.info("* {} ref: {}", accountType, referenceIban);
 
         Account entity = new Account(accountType, generateRandomIban());
@@ -44,7 +46,7 @@ public class AccountService {
         return new Iban("DE" + RandomStringUtils.randomNumeric(20));
     }
 
-    void deposit(Iban iban, Money money) {
+    public void deposit(Iban iban, Money money) {
         log.info("{}+= {}", iban.getValue(), money.getAmount());
 
         getByIban(iban).ifPresent(account -> {
@@ -53,7 +55,7 @@ public class AccountService {
         });
     }
 
-    boolean transfer(
+    public boolean transfer(
             @NonNull Iban from,
             @NonNull Iban to,
             @NonNull Money amount) {
@@ -94,14 +96,14 @@ public class AccountService {
         return accountRepository.findById(from.getValue());
     }
 
-    Optional<Money> getBalance(Iban account) {
+    public Optional<Money> getBalance(Iban account) {
         log.info("{}?", account.getValue());
         return getByIban(account)
                 .map(Account::getBalance)
                 .map(Money::new);
     }
 
-    List<Account> getAllFiltered(List<AccountType> filter) {
+    public List<Account> getAllFiltered(List<AccountType> filter) {
         log.info("{}*", filter);
         return accountRepository.findByAccountType(filter);
     }

@@ -1,5 +1,9 @@
 package com.mruhwedel.banking
 
+import com.mruhwedel.banking.domain.Account
+import com.mruhwedel.banking.domain.AccountType
+import com.mruhwedel.banking.domain.Iban
+import com.mruhwedel.banking.domain.Money
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
@@ -8,9 +12,9 @@ import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Stepwise
 
-import static com.mruhwedel.banking.AccountType.CHECKING
-import static com.mruhwedel.banking.AccountType.PRIVATE_LOAN
-import static com.mruhwedel.banking.AccountType.SAVINGS
+import static com.mruhwedel.banking.domain.AccountType.CHECKING
+import static com.mruhwedel.banking.domain.AccountType.PRIVATE_LOAN
+import static com.mruhwedel.banking.domain.AccountType.SAVINGS
 import static com.mruhwedel.banking.BankingTestData.*
 import static org.hamcrest.Matchers.equalTo
 import static org.hamcrest.Matchers.hasSize
@@ -43,7 +47,7 @@ class BankingFunctionalSpec extends Specification {
     private WebTestClient.ResponseSpec createAccount(AccountType at, Iban ref = null) {
         client.post()
                 .uri("/api/accounts")
-                .bodyValue(new AccountCreationDto(at, ref))
+                .bodyValue(new BankingAPIController.AccountCreationDto(at, ref))
                 .exchange()
     }
 

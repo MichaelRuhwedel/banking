@@ -1,4 +1,4 @@
-package com.mruhwedel.banking;
+package com.mruhwedel.banking.domain;
 
 public enum TransferResult {
     TRANSFERRED,
