@@ -8,6 +8,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.data.util.Optionals;
 import org.springframework.stereotype.Component;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +21,7 @@ import static lombok.AccessLevel.PACKAGE;
 @Component
 @Getter(PACKAGE) // visible for testing
 @RequiredArgsConstructor
+@Transactional
 public class AccountService {
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;

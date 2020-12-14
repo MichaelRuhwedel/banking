@@ -6,6 +6,7 @@ import static com.mruhwedel.banking.BankingTestData.ACCOUNT_TYPE
 import static com.mruhwedel.banking.BankingTestData.IBAN_2
 import static com.mruhwedel.banking.BankingTestData.MONEY
 import static com.mruhwedel.banking.BankingTestData.IBAN
+import static java.math.BigDecimal.ZERO
 
 class AccountServiceSpec extends Specification {
     def service = new AccountService(
@@ -21,9 +22,9 @@ class AccountServiceSpec extends Specification {
         service.deposit(IBAN, MONEY)
 
         then:
-        1 * service.accountRepository.findByIban(IBAN) >> Optional.of(account)
+        1 * service.accountRepository.findByIban(IBAN.value) >> Optional.of(account)
         1 * service.accountRepository.save({ Account it ->
-            it.balance == MONEY.amount
+            it.balance == MONEY
         })
     }
 
@@ -34,32 +35,32 @@ class AccountServiceSpec extends Specification {
         def b = new Account(ACCOUNT_TYPE, IBAN_2) // account starts with 0.0 balance
 
         and: 'cash'
-        def originalBalance = a.balance
+        def originalBalance = a.balance.amount
         def transfer = new Money(234567.0)
 
         when:
         service.transfer(IBAN, IBAN_2, transfer)
 
         then: 'load the accounts'
-        1 * service.accountRepository.findByIban(IBAN) >> Optional.of(a)
-        1 * service.accountRepository.findByIban(IBAN_2) >> Optional.of(b)
+        1 * service.accountRepository.findByIban(IBAN.value) >> Optional.of(a)
+        1 * service.accountRepository.findByIban(IBAN_2.value) >> Optional.of(b)
 
         and: 'persist balance a'
         1 * service.accountRepository.save({ Account it ->
-            it.iban == IBAN.value
-            it.balance == originalBalance - transfer.amount
+            it.iban == IBAN
+            it.balance.amount == originalBalance - transfer.amount
         })
 
         and: 'persist balance b'
         1 * service.accountRepository.save({
-            it.iban == IBAN_2.value
-            it.balance == transfer.amount
+            it.iban == IBAN_2
+            it.balance == transfer
         })
 
         and: 'creates a transaction log entry'
         1 * service.transactionRepository.save({ TransactionLog it ->
-            it.ibanFrom == IBAN.value
-            it.ibanTo == IBAN_2.value
+            it.ibanFrom == IBAN
+            it.ibanTo == IBAN_2
             it.amount == transfer.amount
         })
 
@@ -72,9 +73,9 @@ class AccountServiceSpec extends Specification {
         then:
         1 * service.accountRepository.save({ Account a ->
             a.accountType == ACCOUNT_TYPE
-            a.balance == 0.0
+            a.balance.amount == 0.0
             a.iban =~ /DE[0-9]{20}/
-        })
+        }) >> Stub(Account)
     }
 
     def "create() Savings account references checking "() {
@@ -89,9 +90,9 @@ class AccountServiceSpec extends Specification {
         1 * service.accountRepository.getOne(IBAN.value) >> checkingAccount
         1 * service.accountRepository.save({ Account a ->
             a.accountType == accountType
-            a.balance == 0.0
+            a.balance == new Money(ZERO)
             a.checking == checkingAccount
-        })
+        }) >>  Stub(Account)
     }
 
     def "getBalance(): Should return the balance"() {
@@ -103,10 +104,10 @@ class AccountServiceSpec extends Specification {
         def result = service.getBalance(IBAN)
 
         then:
-        service.accountRepository.findByIban(IBAN) >> Optional.of(account)
+        service.accountRepository.findByIban(IBAN.value) >> Optional.of(account)
 
         result
-                .map { it.amount == account.balance }
+                .map(account.balance::equals)
                 .orElse(false)
     }
 
