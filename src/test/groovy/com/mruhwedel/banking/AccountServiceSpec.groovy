@@ -4,6 +4,7 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 import static com.mruhwedel.banking.AccountType.CHECKING
+import static com.mruhwedel.banking.AccountType.PRIVATE_LOAN
 import static com.mruhwedel.banking.BankingTestData.ACCOUNT_TYPE
 import static com.mruhwedel.banking.BankingTestData.IBAN_2
 import static com.mruhwedel.banking.BankingTestData.IBAN_CHECKING
@@ -73,37 +74,34 @@ class AccountServiceSpec extends Specification {
     }
 
     @Unroll
-    def "transfer() from CHECKING to #accountType is possible"(AccountType accountType) {
+    def 'transfer() #sourceDestination is possible'(List<AccountType> sourceDestination) {
         given: 'accounts'
-        def accountChecking = new Account(CHECKING, IBAN_CHECKING) // account starts with 0.0 balance
-        accountChecking.deposit(MONEY)
+        def sourceAccount = new Account(sourceDestination[0], IBAN) // account starts with 0.0 balance
+        sourceAccount.deposit(MONEY)
+        service.accountRepository.findByIban(sourceAccount.iban.value) >> Optional.of(sourceAccount)
 
-        def anyAccount = new Account(accountType, IBAN_2)
-
-        service.accountRepository.findByIban(accountChecking.iban.value) >> Optional.of(accountChecking)
-        service.accountRepository.findByIban(anyAccount.iban.value) >> Optional.of(anyAccount)
-
+        def destinationAccount = new Account(sourceDestination[1], IBAN_2)
+        service.accountRepository.findByIban(destinationAccount.iban.value) >> Optional.of(destinationAccount)
 
         when:
-        def result = service.transfer(accountChecking.iban, anyAccount.iban, MONEY)
+        def result = service.transfer(sourceAccount.iban, destinationAccount.iban, MONEY)
 
         then:
         result == TRANSFERRED
 
         where:
-        accountType << AccountType.values()
+        sourceDestination  << ([[CHECKING, PRIVATE_LOAN],AccountType.values()].combinations())
     }
 
     def "transfer() from SAVINGS to CHECKING is possible"() {
-        given: 'accounts'
+        given: 'a checking account, ...'
         def accountChecking = new Account(CHECKING, IBAN_CHECKING) // account starts with 0.0 balance
         accountChecking.deposit(MONEY)
-
-        def accountSavings = new Account(IBAN_SAVINGS, accountChecking)
-
         service.accountRepository.findByIban(accountChecking.iban.value) >> Optional.of(accountChecking)
-        service.accountRepository.findByIban(accountSavings.iban.value) >> Optional.of(accountSavings)
 
+        and: '... a savings account that belongs to it.'
+        def accountSavings = new Account(IBAN_SAVINGS, accountChecking)
+        service.accountRepository.findByIban(accountSavings.iban.value) >> Optional.of(accountSavings)
 
         when:
         def result = service.transfer(accountChecking.iban, accountSavings.iban, MONEY)
@@ -180,7 +178,7 @@ class AccountServiceSpec extends Specification {
     def 'getAll() will filter by account type'() {
         given:
         def filter = [ACCOUNT_TYPE]
-        def accounts = [new Account()]
+        def accounts = [Stub(Account)]
 
         when:
         def result = service.getAllFiltered(filter)

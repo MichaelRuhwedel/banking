@@ -8,8 +8,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import java.math.BigDecimal;
-import java.util.UUID;
 
+import static com.mruhwedel.banking.AccountType.SAVINGS;
 import static java.math.BigDecimal.ZERO;
 
 @Data
@@ -18,7 +18,7 @@ import static java.math.BigDecimal.ZERO;
 @EqualsAndHashCode(of = "iban")
 public class Account {
     public Account(Iban iban, Account checking) {
-        this(AccountType.SAVINGS, iban);
+        this(SAVINGS, iban); // when we get an account reference, our instance is a savings account
         this.checking = checking;
     }
 

@@ -13,15 +13,14 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.mruhwedel.banking.AccountType.SAVINGS;
-import static com.mruhwedel.banking.TransferResult.ACCOUNT_NONEXISTENT;
-import static com.mruhwedel.banking.TransferResult.TRANSFERRED;
+import static com.mruhwedel.banking.TransferResult.*;
 import static lombok.AccessLevel.PACKAGE;
 
 @Slf4j
 @Component
+@Transactional
 @Getter(PACKAGE) // visible for testing
 @RequiredArgsConstructor
-@Transactional
 public class AccountService {
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
@@ -67,7 +66,7 @@ public class AccountService {
                             Account destination = p.getSecond();
 
                             if(source.getAccountType() == SAVINGS && !source.getChecking().equals(destination)){
-                                return TransferResult.INVALID_ACCOUNT_TARGET;
+                                return INVALID_ACCOUNT_TARGET;
                             }
 
                             source.withdraw(amount);
