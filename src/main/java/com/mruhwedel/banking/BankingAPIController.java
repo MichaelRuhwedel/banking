@@ -1,5 +1,6 @@
 package com.mruhwedel.banking;
 
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -15,6 +16,11 @@ public class BankingAPIController {
 
     private final AccountService accountService;
 
+    @PostMapping
+    void createAccount(AccountType accountType) {
+        accountService.create( accountType);
+    }
+
     @PostMapping("{selected}/deposit")
     void deposit(
             @RequestParam Iban ibanOfAccount,
@@ -23,7 +29,7 @@ public class BankingAPIController {
         accountService.deposit(ibanOfAccount, money);
     }
 
-    @PostMapping("{from}/transfer-to/${to}")
+    @PostMapping("{from}/transfer-to/{to}")
     void transfer(
             @RequestParam Iban from,
             @RequestParam Iban to,
@@ -44,5 +50,9 @@ public class BankingAPIController {
 
     @GetMapping
     List<Account> getAllFiltered(@RequestParam List<AccountType> filter) { return accountService.getAllFiltered(filter);
+    }
+    @Data
+    private static class AccountCreationDto{
+        private AccountType accountType;
     }
 }

@@ -65,6 +65,17 @@ class AccountServiceSpec extends Specification {
 
     }
 
+    def "create() Creates an account with the given type "() {
+        when:
+        service.create(ACCOUNT_TYPE)
+
+        then:
+        1 * service.accountRepository.save({Account a ->
+            a.accountType == ACCOUNT_TYPE
+            a.balance == 0.0
+            a.iban =~ /DE[0-9]{20}/
+        })
+    }
     def "getBalance(): Should return the balance"() {
         given:
         def account = new Account()

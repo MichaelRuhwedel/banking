@@ -3,6 +3,7 @@ package com.mruhwedel.banking;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.data.util.Optionals;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +21,13 @@ import static lombok.AccessLevel.PACKAGE;
 public class AccountService {
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
+    Account create(AccountType accountType){
+       return accountRepository.save(new Account(accountType, generateRandomIban()));
+    }
+
+    private Iban generateRandomIban() {
+        return new Iban("DE" + RandomStringUtils.randomNumeric(20));
+    }
 
     void deposit(Iban selected, Money money) {
         log.info("{}+= {}", selected, money);
@@ -69,7 +77,8 @@ public class AccountService {
         return accountRepository.findByAccountType(filter);
     }
 
-    public void getTransactions(Iban selected) {
-        return transactionRepository.ge
+    public List<TransactionLog> getTransactions(Iban selected) {
+        log.info("{}t", selected);
+        return transactionRepository.findByIban(selected);
     }
 }
