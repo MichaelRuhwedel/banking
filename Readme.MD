@@ -14,21 +14,25 @@ for you to play with. Look for their Ibans in the log:
  INFO 38605 ... SAVINGS:  DE16169132164872662493, checking=Account(... iban=DE90936112903298679459))
  INFO 38605 ... PRIVATE_LOAN: DE18464324536181493695, checking=null)
 ```
-The service uses an im-memory H2 database, you can inspect the database [here](http://localhost:8080/h2-console/).
+The service uses an im-memory H2 database, you can access it's console [http://localhost:8080/h2-console](http://localhost:8080/h2-console).
 The **JDBC URL** is `jdbc:h2:mem:testdb`
 
 
 ### API
 The API is the following, all in pseudo code.
 The server will run on [localhost:8080](http://localhost:8080).
-Once the server is running, you may view a swagger documentation of the API [here](http://localhost:8080/swagger-ui.html). 
+Once the server is running, you may view a swagger documentation of the API [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html). 
 
 ```Bash
 # account creation
 POST /api/accounts
 {
+  "accountType" : "Checking"
+}
+# -> DE79762591894693956021
+{
   "accountType" : "SAVINGS"
-  "refereceIban" : "DE79762591894693956021"
+  "referenceIban" : "DE79762591894693956021"
 }
 
 
@@ -61,10 +65,20 @@ GET /api/account/{iban}/transactions
 ```
 
 ### Future Development Ideas
-This is a prototype and a bit rough around the edges. 
-* [ ] The transaction history doesn't will return transactions if the given iban was the source or the target of a transfer. 
-      A nicer view would be positive and negative amounts, depending on the direction of the transfer.
-* [ ] # The account's are not capped you
-may overdraft them indefinitely
-* [ ] A transfer either succeeds or fails, returning error codes to the consumer would help.
-* [ ] This was my first try at using swagger, adding descriptions and examples would help
+This is a prototype, and as such bit rough around the edges. 
+* [ ] The transaction history will return transactions if the given iban is either the source or the target of a transfer. 
+      A nicer view would be positive and negative amounts, depending on which account you want to view.
+* [ ] The account's are not capped you may overdraft them indefinitely.
+* [ ] Swagger would need more descriptions and examples.
+* [ ] A transfer either succeeds or fails, returning error codes to the consumer would help. Here's a sketch:
+  ```java
+  enum TransferResult {
+      TRANSFERRED,
+      INSUFFICIENT_FUNDS,
+      CANNOT_WITHDRAW_FROM_LOAN,
+      INVALID_ACCOUNT_TARGET,
+      ACCOUNT_NONEXISTENT
+  }
+  ```
+
+ 
