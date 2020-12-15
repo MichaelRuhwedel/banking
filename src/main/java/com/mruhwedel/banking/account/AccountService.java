@@ -34,9 +34,10 @@ public class AccountService {
         Account newAccount = new Account(accountType, generateRandomIban());
 
         if (accountType == SAVINGS) {
+            String checkingIban = referenceIban.getValue();
             Account checking = accountRepository
-                    .findById(referenceIban.getValue())
-                    .orElseThrow(IllegalArgumentException::new);
+                    .findById(checkingIban)
+                    .orElseThrow(() -> new IllegalArgumentException("could not find checking account with " + checkingIban));
 
             newAccount.setChecking(checking);
         }
@@ -49,13 +50,16 @@ public class AccountService {
         return new Iban("DE" + RandomStringUtils.randomNumeric(20));
     }
 
-    public void deposit(Iban iban, Money money) {
+    public Optional<Account> deposit(Iban iban, Money money) {
         log.info("{}+= {}", iban.getValue(), money.getAmount());
 
-        getByIban(iban).ifPresent(account -> {
+        Optional<Account> byIban = getByIban(iban);
+
+        byIban.ifPresent(account -> {
             account.deposit(money);
             accountRepository.save(account);
         });
+        return byIban;
     }
 
     public boolean transfer(

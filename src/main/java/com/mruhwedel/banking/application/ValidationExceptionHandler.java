@@ -14,11 +14,15 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 @ControllerAdvice
 public class ValidationExceptionHandler {
 
-    @ExceptionHandler
+    @ExceptionHandler({
+            ConstraintViolationException.class,
+            IllegalArgumentException.class
+    })
     @ResponseStatus(BAD_REQUEST)
-    public ResponseEntity<String> resourceNotFoundException(ConstraintViolationException ex) {
+    public ResponseEntity<String> resourceNotFoundException(Throwable ex) {
         log.info(ex.getLocalizedMessage());
         return ResponseEntity.badRequest()
-                .body(ex.getLocalizedMessage());
+                .body('"' + ex.getLocalizedMessage() + '"');
     }
+
 }

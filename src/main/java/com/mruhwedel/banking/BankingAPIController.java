@@ -26,9 +26,13 @@ public class BankingAPIController {
 
     private final AccountService accountService;
 
+    private static ResponseStatusException notFound() {
+        return new ResponseStatusException(NOT_FOUND);
+    }
+
     @PostMapping
     @ResponseStatus(CREATED)
-    public Iban createAccount(@RequestBody AccountCreationDto accountCreationDto) {
+    public Iban createAccount(@Valid @RequestBody AccountCreationDto accountCreationDto) {
         return accountService.create(
                 accountCreationDto.getAccountType(),
                 accountCreationDto.getReferenceIban()
@@ -38,10 +42,11 @@ public class BankingAPIController {
     @Parameter(name = "iban", schema = @Schema(type = "string"))
     @PostMapping("{iban}/deposit")
     public void deposit(
-            @PathVariable("iban") Iban iban,
-            @RequestBody Money money
+            @Valid @PathVariable("iban") Iban iban,
+            @Valid @RequestBody Money money
     ) {
-        accountService.deposit(iban, money);
+        accountService.deposit(iban, money)
+                .orElseThrow(BankingAPIController::notFound);
     }
 
     @Parameters({
@@ -63,7 +68,7 @@ public class BankingAPIController {
     @GetMapping("{iban}")
     public Money balance(@Valid @PathVariable("iban") Iban iban) {
         return accountService.getBalance(iban)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
+                .orElseThrow(BankingAPIController::notFound);
     }
 
     @Parameter(name = "iban", schema = @Schema(type = "string"))
@@ -74,24 +79,24 @@ public class BankingAPIController {
 
     @GetMapping
     public List<Account> getAllFiltered(@RequestParam(value = "accountTypes", defaultValue = "", required = false)
-                                         List<AccountType> accountTypes) {
+                                                List<AccountType> accountTypes) {
         return accountService.getAllFiltered(accountTypes);
     }
 
     @Parameter(name = "iban", schema = @Schema(type = "string"))
     @PutMapping("{iban}/lock")
-    public void lock(@PathVariable("iban") Iban iban) {
+    public void lock(@Valid @PathVariable("iban") Iban iban) {
         accountService
                 .lock(iban)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
+                .orElseThrow(BankingAPIController::notFound);
     }
 
     @Parameter(name = "iban", schema = @Schema(type = "string"))
     @DeleteMapping("{iban}/lock")
-    public void unlock(@PathVariable("iban") Iban iban) {
+    public void unlock(@Valid @PathVariable("iban") Iban iban) {
         accountService
                 .unlock(iban)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
+                .orElseThrow(BankingAPIController::notFound);
     }
 
     @Value
