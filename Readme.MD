@@ -10,11 +10,12 @@ Please run this as a Spring boot application in your IDE or from gradle:
 On startup, the service will generate three accounts (Checking, Savings and Personal Loan),
 for you to play with. Look for their Ibans in the log:
 ```bash
- INFO 38605 ... CHECKING: DE90936112903298679459, checking=null)
- INFO 38605 ... SAVINGS:  DE16169132164872662493, checking=Account(... iban=DE90936112903298679459))
- INFO 38605 ... PRIVATE_LOAN: DE18464324536181493695, checking=null)
+ INFO  ... YOUR TEST ACCOUNTS ARE SETUP:
+ INFO  ... CHECKING: DE90936112903298679459, checking=null)
+ INFO  ... SAVINGS:  DE16169132164872662493, checking=Account(... iban=DE90936112903298679459))
+ INFO  ... PRIVATE_LOAN: DE18464324536181493695, checking=null)
 ```
-The service uses an im-memory H2 database, you can access it's console [http://localhost:8080/h2-console](http://localhost:8080/h2-console).
+The service uses an im-memory H2 database, you can access its console [http://localhost:8080/h2-console](http://localhost:8080/h2-console).
 The **JDBC URL** is `jdbc:h2:mem:testdb`
 
 

@@ -32,12 +32,13 @@ public class BankingApplication {
             accountService.create(SAVINGS, checking);
             accountService.create(PRIVATE_LOAN, null);
 
-            // fetch all customers
-            log.info("Accounts found with findAll():");
+            // log for developers
             log.info("-------------------------------");
+            log.info("YOUR TEST ACCOUNTS ARE SETUP: ");
             for (Account account : accountService.getAllFiltered(Arrays.asList(AccountType.values()))) {
                 log.info("{}: {} references: {}", account.getAccountType(), account.getIban(), account.getChecking());
             }
+            log.info("-------------------------------");
         };
     }
 }
