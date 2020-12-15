@@ -1,4 +1,4 @@
-package com.mruhwedel.banking.domain;
+package com.mruhwedel.banking.account;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -10,7 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import java.math.BigDecimal;
 
-import static com.mruhwedel.banking.domain.AccountType.SAVINGS;
+import static com.mruhwedel.banking.account.AccountType.SAVINGS;
 import static java.math.BigDecimal.ZERO;
 import static javax.persistence.EnumType.STRING;
 

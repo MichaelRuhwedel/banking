@@ -1,12 +1,12 @@
-package com.mruhwedel.banking
+package com.mruhwedel.banking.account
 
-import com.mruhwedel.banking.domain.AccountType
-import com.mruhwedel.banking.domain.Iban
-import com.mruhwedel.banking.domain.Money
+import com.mruhwedel.banking.account.AccountType
+import com.mruhwedel.banking.account.Iban
+import com.mruhwedel.banking.account.Money
 
-import static com.mruhwedel.banking.domain.AccountType.CHECKING
+import static com.mruhwedel.banking.account.AccountType.CHECKING
 
-class BankingTestData {
+class AccountTestData {
     static final Iban IBAN = new Iban('DE75512108001245126101') // from https://www.iban.com/structure
     static final Iban IBAN_CHECKING = IBAN // from https://www.iban.com/structure
     static final Iban IBAN_SAVINGS = new Iban('DE75512108001245126102') // from https://www.iban.com/structure

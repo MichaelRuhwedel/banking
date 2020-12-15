@@ -1,5 +1,7 @@
-package com.mruhwedel.banking.domain;
+package com.mruhwedel.banking.transactionlog;
 
+import com.mruhwedel.banking.account.Account;
+import com.mruhwedel.banking.account.Money;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -32,4 +34,5 @@ public class TransactionLog {
 
         id = UUID.randomUUID();
     }
+
 }

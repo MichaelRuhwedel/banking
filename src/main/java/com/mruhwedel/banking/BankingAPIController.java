@@ -1,6 +1,7 @@
 package com.mruhwedel.banking;
 
-import com.mruhwedel.banking.domain.*;
+import com.mruhwedel.banking.account.*;
+import com.mruhwedel.banking.transactionlog.TransactionLog;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -72,7 +73,7 @@ public class BankingAPIController {
     }
 
     @GetMapping
-    public List<Account> getAllFiltered(@RequestParam(value = "accountTypes", required = false)
+    public List<Account> getAllFiltered(@RequestParam(value = "accountTypes", defaultValue = "", required = false)
                                          List<AccountType> accountTypes) {
         return accountService.getAllFiltered(accountTypes);
     }

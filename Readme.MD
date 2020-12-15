@@ -26,6 +26,11 @@ Once the server is running, you may view a swagger documentation of the API [her
 ```Bash
 # account creation
 POST /api/accounts
+{
+  "accountType" : "SAVINGS"
+  "refereceIban" : "DE79762591894693956021"
+}
+
 
 # Show existing accounts
 GET /api/accounts?accountTypes=SAVINGS,CHECKING,PRIVATE_LOAN
@@ -59,6 +64,7 @@ GET /api/account/{iban}/transactions
 This is a prototype and a bit rough around the edges. 
 * [ ] The transaction history doesn't will return transactions if the given iban was the source or the target of a transfer. 
       A nicer view would be positive and negative amounts, depending on the direction of the transfer.
-* [ ] # The account's are not capped you may overdraft them indefinitely
+* [ ] # The account's are not capped you
+may overdraft them indefinitely
 * [ ] A transfer either succeeds or fails, returning error codes to the consumer would help.
 * [ ] This was my first try at using swagger, adding descriptions and examples would help

@@ -1,9 +1,9 @@
 package com.mruhwedel.banking
 
-import com.mruhwedel.banking.domain.Account
-import com.mruhwedel.banking.domain.AccountType
-import com.mruhwedel.banking.domain.Iban
-import com.mruhwedel.banking.domain.Money
+import com.mruhwedel.banking.account.Account
+import com.mruhwedel.banking.account.AccountType
+import com.mruhwedel.banking.account.Iban
+import com.mruhwedel.banking.account.Money
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
@@ -12,10 +12,10 @@ import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Stepwise
 
-import static com.mruhwedel.banking.domain.AccountType.CHECKING
-import static com.mruhwedel.banking.domain.AccountType.PRIVATE_LOAN
-import static com.mruhwedel.banking.domain.AccountType.SAVINGS
-import static com.mruhwedel.banking.BankingTestData.*
+import static com.mruhwedel.banking.account.AccountType.CHECKING
+import static com.mruhwedel.banking.account.AccountType.PRIVATE_LOAN
+import static com.mruhwedel.banking.account.AccountType.SAVINGS
+import static com.mruhwedel.banking.account.AccountTestData.*
 import static org.hamcrest.Matchers.equalTo
 import static org.hamcrest.Matchers.hasSize
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT

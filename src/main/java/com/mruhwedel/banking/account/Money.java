@@ -1,4 +1,4 @@
-package com.mruhwedel.banking.domain;
+package com.mruhwedel.banking.account;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

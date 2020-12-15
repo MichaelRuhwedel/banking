@@ -1,6 +1,5 @@
-package com.mruhwedel.banking.repositories;
+package com.mruhwedel.banking.transactionlog;
 
-import com.mruhwedel.banking.domain.TransactionLog;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -16,5 +15,5 @@ public interface TransactionRepository extends CrudRepository<TransactionLog, UU
             "WHERE " +
             "   t.ibanFrom = ?1 OR " +
             "   t.ibanTo = ?1")
-    List<TransactionLog> findByIban(String iban);
+    List<TransactionLog> findByIbanFromOrIbanTo(String iban);
 }

@@ -1,7 +1,7 @@
-package com.mruhwedel.banking.domain;
+package com.mruhwedel.banking.account;
 
-import com.mruhwedel.banking.repositories.AccountRepository;
-import com.mruhwedel.banking.repositories.TransactionRepository;
+import com.mruhwedel.banking.transactionlog.TransactionLog;
+import com.mruhwedel.banking.transactionlog.TransactionRepository;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +14,8 @@ import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-import static com.mruhwedel.banking.domain.AccountType.PRIVATE_LOAN;
-import static com.mruhwedel.banking.domain.AccountType.SAVINGS;
+import static com.mruhwedel.banking.account.AccountType.PRIVATE_LOAN;
+import static com.mruhwedel.banking.account.AccountType.SAVINGS;
 import static java.lang.Boolean.FALSE;
 import static lombok.AccessLevel.PACKAGE;
 
@@ -31,13 +31,16 @@ public class AccountService {
     public Iban create(AccountType accountType, Iban referenceIban) {
         log.info("* {} ref: {}", accountType, referenceIban);
 
-        Account entity = new Account(accountType, generateRandomIban());
+        Account newAccount = new Account(accountType, generateRandomIban());
 
         if (accountType == SAVINGS) {
-            Account checking = accountRepository.getOne(referenceIban.getValue());
-            entity.setChecking(checking);
+            Account checking = accountRepository
+                    .findById(referenceIban.getValue())
+                    .orElseThrow(IllegalArgumentException::new);
+
+            newAccount.setChecking(checking);
         }
-        Account created = accountRepository.save(entity);
+        Account created = accountRepository.save(newAccount);
 
         return new Iban(created.getIban());
     }
@@ -105,12 +108,12 @@ public class AccountService {
 
     public List<Account> getAllFiltered(List<AccountType> filter) {
         log.info("{}*", filter);
-        return accountRepository.findByAccountType(filter);
+        return accountRepository.findByAccountTypeIn(filter);
     }
 
     public List<TransactionLog> getTransactions(Iban iban) {
         log.info("{}t", iban.getValue());
-        return transactionRepository.findByIban(iban.getValue());
+        return transactionRepository.findByIbanFromOrIbanTo(iban.getValue());
     }
 
     public Optional<Account> lock(Iban iban) {
