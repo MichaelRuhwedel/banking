@@ -4,11 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.validation.ConstraintViolationException;
-
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Slf4j
 @ControllerAdvice
@@ -18,10 +15,10 @@ public class ValidationExceptionHandler {
             ConstraintViolationException.class,
             IllegalArgumentException.class
     })
-    @ResponseStatus(BAD_REQUEST)
-    public ResponseEntity<String> resourceNotFoundException(Throwable ex) {
+    public ResponseEntity<String> handle(Throwable ex) {
         log.info(ex.getLocalizedMessage());
-        return ResponseEntity.badRequest()
+        return ResponseEntity
+                .badRequest()
                 .body('"' + ex.getLocalizedMessage() + '"');
     }
 
